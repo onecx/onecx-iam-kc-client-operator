@@ -207,4 +207,5 @@ class KeycloakClientControllerMockTest extends AbstractTest {
 
         }
     }
+
 }

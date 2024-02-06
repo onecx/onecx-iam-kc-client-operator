@@ -6,10 +6,10 @@ metadata:
 spec:
   group: onecx.tkit.org
   names:
-    kind: Keycloakclient
+    kind: KeycloakClient
     plural: keycloakclients
     singular: keycloakclient
-  scope: Cluster
+  scope: Namespaced
   versions:
   - name: v1
     schema:

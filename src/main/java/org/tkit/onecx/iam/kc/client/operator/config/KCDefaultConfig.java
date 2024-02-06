@@ -10,6 +10,13 @@ import io.smallrye.config.WithName;
 public interface KCDefaultConfig {
 
     /**
+     * Add default scopes from realm to the client.
+     */
+    @WithName("add-def-scopes")
+    @WithDefault(value = "true")
+    Boolean addDefaultScopes();
+
+    /**
      * Enable the client
      */
     @WithName("enabled")

@@ -13,7 +13,8 @@ import io.javaoperatorsdk.operator.processing.event.source.filter.OnAddFilter;
 import io.javaoperatorsdk.operator.processing.event.source.filter.OnUpdateFilter;
 
 @ControllerConfiguration(name = "kc", onAddFilter = KeycloakClientController.AddFilter.class, onUpdateFilter = KeycloakClientController.UpdateFilter.class)
-public class KeycloakClientController implements Reconciler<Keycloakclient>, ErrorStatusHandler<Keycloakclient> {
+public class KeycloakClientController
+        implements Reconciler<KeycloakClient>, ErrorStatusHandler<KeycloakClient>, Cleaner<KeycloakClient> {
 
     private static final Logger log = LoggerFactory.getLogger(KeycloakClientController.class);
 
@@ -21,8 +22,8 @@ public class KeycloakClientController implements Reconciler<Keycloakclient>, Err
     KeycloakAdminService service;
 
     @Override
-    public ErrorStatusUpdateControl<Keycloakclient> updateErrorStatus(Keycloakclient keycloakClient,
-            Context<Keycloakclient> context, Exception e) {
+    public ErrorStatusUpdateControl<KeycloakClient> updateErrorStatus(KeycloakClient keycloakClient,
+            Context<KeycloakClient> context, Exception e) {
         int responseCode = -1;
         if (e.getCause() instanceof WebApplicationException re) {
             responseCode = re.getResponse().getStatus();
@@ -49,7 +50,7 @@ public class KeycloakClientController implements Reconciler<Keycloakclient>, Err
     }
 
     @Override
-    public UpdateControl<Keycloakclient> reconcile(Keycloakclient keycloakClient, Context<Keycloakclient> context)
+    public UpdateControl<KeycloakClient> reconcile(KeycloakClient keycloakClient, Context<KeycloakClient> context)
             throws Exception {
         log.info("Reconcile resource: {} appId: {}", keycloakClient.getMetadata().getName(),
                 keycloakClient.getSpec().getKcConfig().getClientId());
@@ -61,7 +62,7 @@ public class KeycloakClientController implements Reconciler<Keycloakclient>, Err
         return UpdateControl.updateStatus(keycloakClient);
     }
 
-    private void updateStatusPojo(Keycloakclient keycloakClient, int responseCode) {
+    private void updateStatusPojo(KeycloakClient keycloakClient, int responseCode) {
         KeycloakClientStatus result = new KeycloakClientStatus();
         KeycloakClientSpec spec = keycloakClient.getSpec();
         result.setClientId(spec.getKcConfig().getClientId());
@@ -78,18 +79,24 @@ public class KeycloakClientController implements Reconciler<Keycloakclient>, Err
         keycloakClient.setStatus(result);
     }
 
-    public static class AddFilter implements OnAddFilter<Keycloakclient> {
+    @Override
+    public DeleteControl cleanup(KeycloakClient keycloakclient, Context<KeycloakClient> context) {
+        service.deleteClient(keycloakclient);
+        return DeleteControl.defaultDelete();
+    }
+
+    public static class AddFilter implements OnAddFilter<KeycloakClient> {
 
         @Override
-        public boolean accept(Keycloakclient resource) {
+        public boolean accept(KeycloakClient resource) {
             return resource.getSpec() != null;
         }
     }
 
-    public static class UpdateFilter implements OnUpdateFilter<Keycloakclient> {
+    public static class UpdateFilter implements OnUpdateFilter<KeycloakClient> {
 
         @Override
-        public boolean accept(Keycloakclient newResource, Keycloakclient oldResource) {
+        public boolean accept(KeycloakClient newResource, KeycloakClient oldResource) {
             return newResource.getSpec() != null;
         }
     }

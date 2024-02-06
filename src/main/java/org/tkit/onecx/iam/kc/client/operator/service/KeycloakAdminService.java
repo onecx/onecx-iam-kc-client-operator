@@ -14,7 +14,7 @@ import org.keycloak.representations.idm.ClientScopeRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tkit.onecx.iam.kc.client.operator.KCConfig;
-import org.tkit.onecx.iam.kc.client.operator.Keycloakclient;
+import org.tkit.onecx.iam.kc.client.operator.KeycloakClient;
 import org.tkit.onecx.iam.kc.client.operator.config.KCClientConfig;
 import org.tkit.onecx.iam.kc.client.operator.config.KCDefaultConfig;
 import org.tkit.quarkus.log.cdi.LogService;
@@ -37,16 +37,19 @@ public class KeycloakAdminService {
     KCClientConfig kcClientConfig;
 
     @ActivateRequestContext
-    public int createClient(Keycloakclient keycloakClient) {
+    public int createClient(KeycloakClient keycloakClient) {
         var spec = keycloakClient.getSpec();
         var clientId = spec.getKcConfig().getClientId();
         var realm = spec.getRealm() != null ? spec.getRealm() : kcClientConfig.realm();
         ClientRepresentation client = null;
+        KCDefaultConfig clientDefaultConfig;
 
         if (UI_TYPE.equalsIgnoreCase(spec.getType())) {
-            client = prepareClient(spec.getKcConfig(), kcClientConfig.config().get(UI_TYPE.toLowerCase()));
+            clientDefaultConfig = kcClientConfig.config().get(UI_TYPE.toLowerCase());
+            client = prepareClient(spec.getKcConfig(), clientDefaultConfig);
         } else if (MACHINE_TYPE.equalsIgnoreCase(spec.getType())) {
-            client = prepareClient(spec.getKcConfig(), kcClientConfig.config().get(MACHINE_TYPE.toLowerCase()));
+            clientDefaultConfig = kcClientConfig.config().get(MACHINE_TYPE.toLowerCase());
+            client = prepareClient(spec.getKcConfig(), clientDefaultConfig);
         } else {
             throw new TypeNotSupportedException(spec.getType());
         }
@@ -56,16 +59,18 @@ public class KeycloakAdminService {
 
         List<ClientRepresentation> clients = keycloak.realm(realm).clients().findByClientId(clientId);
 
-        var defaultScopesKC = keycloak.realm(realm).getDefaultDefaultClientScopes().stream()
-                .filter(csr -> csr.getProtocol().equals(PROTOCOL_OPENID_CONNECT)).map(ClientScopeRepresentation::getName)
-                .collect(Collectors.toSet());
-        var optionalScopesKC = keycloak.realm(realm).getDefaultOptionalClientScopes().stream()
-                .filter(csr -> csr.getProtocol().equals(PROTOCOL_OPENID_CONNECT)).map(ClientScopeRepresentation::getName)
-                .collect(Collectors.toSet());
+        if (clientDefaultConfig.addDefaultScopes()) {
+            var defaultScopesKC = keycloak.realm(realm).getDefaultDefaultClientScopes().stream()
+                    .filter(csr -> csr.getProtocol().equals(PROTOCOL_OPENID_CONNECT)).map(ClientScopeRepresentation::getName)
+                    .collect(Collectors.toSet());
+            var optionalScopesKC = keycloak.realm(realm).getDefaultOptionalClientScopes().stream()
+                    .filter(csr -> csr.getProtocol().equals(PROTOCOL_OPENID_CONNECT)).map(ClientScopeRepresentation::getName)
+                    .collect(Collectors.toSet());
 
-        // add default/optional scopes from realm
-        client.getDefaultClientScopes().addAll(defaultScopesKC);
-        client.getOptionalClientScopes().addAll(optionalScopesKC);
+            // add default/optional scopes from realm
+            client.getDefaultClientScopes().addAll(defaultScopesKC);
+            client.getOptionalClientScopes().addAll(optionalScopesKC);
+        }
 
         if (clients.isEmpty()) {
             // do create
@@ -98,6 +103,18 @@ public class KeycloakAdminService {
             toAddOpt.forEach(scope -> addOptClientScope(clientToUpdate, scope));
 
             return 200;
+        }
+    }
+
+    @ActivateRequestContext
+    public void deleteClient(KeycloakClient keycloakClient) {
+        var spec = keycloakClient.getSpec();
+        var clientId = spec.getKcConfig().getClientId();
+        var realm = spec.getRealm() != null ? spec.getRealm() : kcClientConfig.realm();
+
+        List<ClientRepresentation> clients = keycloak.realm(realm).clients().findByClientId(clientId);
+        if (!clients.isEmpty()) {
+            keycloak.realm(realm).clients().get(clients.get(0).getId()).remove();
         }
     }
 
