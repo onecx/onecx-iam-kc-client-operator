@@ -43,13 +43,15 @@ public class KeycloakAdminService {
         var realm = spec.getRealm() != null ? spec.getRealm() : kcClientConfig.realm();
         ClientRepresentation client = null;
         KCDefaultConfig clientDefaultConfig;
+        List<ClientRepresentation> clients = keycloak.realm(realm).clients().findByClientId(clientId);
+        client = clients.isEmpty() ? new ClientRepresentation() : clients.get(0);
 
         if (UI_TYPE.equalsIgnoreCase(spec.getType())) {
             clientDefaultConfig = kcClientConfig.config().get(UI_TYPE.toLowerCase());
-            client = prepareClient(spec.getKcConfig(), clientDefaultConfig);
+            prepareUpdateClient(client, spec.getKcConfig(), clientDefaultConfig);
         } else if (MACHINE_TYPE.equalsIgnoreCase(spec.getType())) {
             clientDefaultConfig = kcClientConfig.config().get(MACHINE_TYPE.toLowerCase());
-            client = prepareClient(spec.getKcConfig(), clientDefaultConfig);
+            prepareUpdateClient(client, spec.getKcConfig(), clientDefaultConfig);
         } else {
             throw new TypeNotSupportedException(spec.getType());
         }
@@ -57,9 +59,7 @@ public class KeycloakAdminService {
         // check scopes if they exist and create them if necessary
         checkAndCreateScopes(client, realm);
 
-        List<ClientRepresentation> clients = keycloak.realm(realm).clients().findByClientId(clientId);
-
-        if (clientDefaultConfig.addDefaultScopes()) {
+        if (Boolean.TRUE.equals(clientDefaultConfig.addDefaultScopes())) {
             var defaultScopesKC = keycloak.realm(realm).getDefaultDefaultClientScopes().stream()
                     .filter(csr -> csr.getProtocol().equals(PROTOCOL_OPENID_CONNECT)).map(ClientScopeRepresentation::getName)
                     .collect(Collectors.toSet());
@@ -184,16 +184,15 @@ public class KeycloakAdminService {
 
     }
 
-    private ClientRepresentation prepareClient(KCConfig client, KCDefaultConfig defaultConfig) {
-        ClientRepresentation clientRepresentation = new ClientRepresentation();
-
+    private void prepareUpdateClient(ClientRepresentation clientRepresentation, KCConfig client,
+            KCDefaultConfig defaultConfig) {
         clientRepresentation.setClientId(client.getClientId());
         clientRepresentation.setDescription(client.getDescription());
 
         clientRepresentation.setEnabled(resolveValue(client.getEnabled(), defaultConfig.enabled()));
         clientRepresentation.setClientAuthenticatorType(
                 resolveValue(client.getClientAuthenticatorType(), defaultConfig.clientAuthenticatorType()));
-        clientRepresentation.setSecret(client.getSecret());
+        clientRepresentation.setSecret(client.getPassword());
         clientRepresentation.setRedirectUris(
                 resolveValue(client.getRedirectUris(), defaultConfig.redirectUris().orElse(new ArrayList<>())));
         clientRepresentation
@@ -216,8 +215,6 @@ public class KeycloakAdminService {
                         defaultConfig.defaultClientScopes().orElse(new ArrayList<>())));
         clientRepresentation.setOptionalClientScopes(
                 resolveValue(client.getOptionalClientScopes(), defaultConfig.optionalClientScopes().orElse(new ArrayList<>())));
-
-        return clientRepresentation;
     }
 
     private Map<String, String> resolveValue(Map<String, String> value, Map<String, String> defaultValue) {

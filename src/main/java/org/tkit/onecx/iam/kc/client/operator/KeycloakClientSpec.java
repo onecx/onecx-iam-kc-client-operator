@@ -11,6 +11,10 @@ public class KeycloakClientSpec {
     @JsonProperty(required = true)
     private String type;
 
+    private String passwordSecrets;
+
+    private String passwordKey;
+
     @JsonProperty(required = true)
     private KCConfig kcConfig;
 
@@ -38,4 +42,19 @@ public class KeycloakClientSpec {
         this.realm = realm;
     }
 
+    public String getPasswordSecrets() {
+        return passwordSecrets;
+    }
+
+    public void setPasswordSecrets(String passwordSecrets) {
+        this.passwordSecrets = passwordSecrets;
+    }
+
+    public String getPasswordKey() {
+        return passwordKey;
+    }
+
+    public void setPasswordKey(String passwordKey) {
+        this.passwordKey = passwordKey;
+    }
 }

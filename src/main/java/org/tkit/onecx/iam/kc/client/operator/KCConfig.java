@@ -16,7 +16,7 @@ public class KCConfig {
 
     private String clientAuthenticatorType;
 
-    private String secret;
+    private String password;
 
     private List<String> redirectUris;
 
@@ -69,12 +69,12 @@ public class KCConfig {
         this.clientAuthenticatorType = clientAuthenticatorType;
     }
 
-    public String getSecret() {
-        return secret;
+    public String getPassword() {
+        return password;
     }
 
-    public void setSecret(String secret) {
-        this.secret = secret;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public List<String> getRedirectUris() {

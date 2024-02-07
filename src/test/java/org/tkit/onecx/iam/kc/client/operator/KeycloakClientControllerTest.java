@@ -4,7 +4,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
+import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 
 import jakarta.inject.Inject;
 
@@ -18,6 +20,7 @@ import org.tkit.onecx.iam.kc.client.operator.service.KeycloakAdminService;
 import org.tkit.onecx.iam.kc.client.test.AbstractTest;
 
 import io.fabric8.kubernetes.api.model.ObjectMetaBuilder;
+import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.javaoperatorsdk.operator.Operator;
 import io.quarkus.test.junit.QuarkusTest;
@@ -114,7 +117,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         kcConfig.setDescription(CLIENT_ID);
         kcConfig.setEnabled(true);
         kcConfig.setClientAuthenticatorType("client-secret");
-        kcConfig.setSecret(CLIENT_ID);
+        kcConfig.setPassword(CLIENT_ID);
         kcConfig.setRedirectUris(List.of("*", "localhost"));
         kcConfig.setWebOrigins(List.of("*", "localhost"));
         kcConfig.setBearerOnly(false);
@@ -359,7 +362,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
         kcConfig.setClientId(CLIENT_ID);
-        kcConfig.setSecret(CLIENT_SECRET);
+        kcConfig.setPassword(CLIENT_SECRET);
         kcConfig.setDefaultClientScopes(List.of("create-scope-1", "create-scope-2"));
         kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1", "create.attr.2", "create.values.2"));
         data.setSpec(kcClientSpec);
@@ -408,7 +411,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
         kcConfig.setClientId(CLIENT_ID);
-        kcConfig.setSecret(CLIENT_SECRET);
+        kcConfig.setPassword(CLIENT_SECRET);
         kcConfig.setDefaultClientScopes(List.of("create-scope-1", "update-scope-2"));
         kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1.update", "update.attr.2", "update.values.2"));
         data.setSpec(kcClientSpec);
@@ -454,9 +457,134 @@ class KeycloakClientControllerTest extends AbstractTest {
     }
 
     @Test
-    @Order(100)
-    void clientErrorTest() {
+    void updateMachinePwdClient() {
+        var CLIENT_ID = "test-client-pwd-chg";
+        var CLIENT_SECRET = "test-client-secret";
+        operator.start();
 
+        KeycloakClient data = new KeycloakClient();
+        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        var kcClientSpec = new KeycloakClientSpec();
+        kcClientSpec.setRealm(REALM_QUARKUS);
+        kcClientSpec.setType(KeycloakAdminService.MACHINE_TYPE);
+        var kcConfig = new KCConfig();
+        kcClientSpec.setKcConfig(kcConfig);
+        kcConfig.setClientId(CLIENT_ID);
+        kcConfig.setPassword(CLIENT_SECRET);
+        kcConfig.setDefaultClientScopes(List.of("create-scope-1", "update-scope-2"));
+        kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1.update", "update.attr.2", "update.values.2"));
+        data.setSpec(kcClientSpec);
+
+        log.info("Creating test keycloak client object: {}", data);
+        client.resource(data).serverSideApply();
+
+        log.info("Waiting 4 seconds and status is UPDATED");
+
+        await().pollDelay(4, SECONDS).untilAsserted(() -> {
+            KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
+            assertThat(mfeStatus).isNotNull();
+            assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.CREATED);
+        });
+
+        var secret = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID).get(0).getSecret();
+        log.info("Old secret {}", secret);
+
+        // update the password
+        var NEW_CLIENT_PASSWORD = "test-client-secret-new";
+        data.getSpec().getKcConfig().setPassword(NEW_CLIENT_PASSWORD);
+
+        log.info("Updating test keycloak client with new password object: {}", data);
+        client.resource(data).update();
+
+        log.info("Waiting 4 seconds and status is UPDATED");
+
+        await().pollDelay(4, SECONDS).untilAsserted(() -> {
+            KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
+            assertThat(mfeStatus).isNotNull();
+            assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.UPDATED);
+        });
+
+        secret = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID).get(0).getSecret();
+        log.info("New secret {}", secret);
+
+        var tokenWithOldPwd = keycloakClient.getClientAccessToken(CLIENT_ID, CLIENT_SECRET);
+        var tokenWithNewPwd = keycloakClient.getClientAccessToken(CLIENT_ID, NEW_CLIENT_PASSWORD);
+
+        assertThat(tokenWithOldPwd).isNull();
+        assertThat(tokenWithNewPwd).isNotNull();
+    }
+
+    @Test
+    void createUpdatePasswordFromSecretTest() {
+        Base64.Encoder encoder = Base64.getEncoder();
+
+        var CLIENT_ID = "test-machine-secret-client";
+        var CLIENT_SECRET = "test-client-secret";
+        var CLIENT_PWD_SECRET = "test-machine-secret-client-secret";
+        var CLIENT_PWD_KEY = "pwd";
+        operator.start();
+
+        KeycloakClient data = new KeycloakClient();
+        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        var kcClientSpec = new KeycloakClientSpec();
+        kcClientSpec.setRealm(REALM_QUARKUS);
+        kcClientSpec.setPasswordKey(CLIENT_PWD_KEY);
+        kcClientSpec.setPasswordSecrets(CLIENT_PWD_SECRET);
+        kcClientSpec.setType(KeycloakAdminService.MACHINE_TYPE);
+        var kcConfig = new KCConfig();
+        kcClientSpec.setKcConfig(kcConfig);
+        kcConfig.setClientId(CLIENT_ID);
+        kcConfig.setPassword("someRandomPwdShouldBeIgnored");
+        kcConfig.setDefaultClientScopes(List.of("create-scope-1", "create-scope-2"));
+        kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1", "create.attr.2", "create.values.2"));
+        data.setSpec(kcClientSpec);
+
+        Secret secret = new Secret();
+        secret.setMetadata(new ObjectMetaBuilder().withName(kcClientSpec.getPasswordSecrets())
+                .withNamespace(client.getNamespace()).build());
+        secret.setData(Map.of(kcClientSpec.getPasswordKey(), encoder.encodeToString(CLIENT_SECRET.getBytes())));
+
+        log.info("Creating secret object: {}", secret);
+        client.resource(secret).serverSideApply();
+
+        log.info("Creating keycloak client object {}", data);
+        client.resource(data).serverSideApply();
+
+        log.info("Waiting 4 seconds and status is CREATED");
+
+        await().pollDelay(4, SECONDS).untilAsserted(() -> {
+            KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
+            assertThat(mfeStatus).isNotNull();
+            assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.CREATED);
+        });
+
+        var token = keycloakClient.getClientAccessToken(CLIENT_ID, CLIENT_SECRET);
+        assertThat(token).isNotNull();
+
+        // update the password
+        var CLIENT_SECRET_NEW = "new-machine-client-secret";
+        secret.setData(Map.of(kcClientSpec.getPasswordKey(), encoder.encodeToString(CLIENT_SECRET_NEW.getBytes())));
+        log.info("Updating secret object: {}", secret);
+        client.resource(secret).update();
+
+        log.info("Waiting 6 seconds and status is UPDATED");
+
+        await().pollDelay(6, SECONDS).untilAsserted(() -> {
+            KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
+            assertThat(mfeStatus).isNotNull();
+            assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.UPDATED);
+        });
+        // old password token empty
+        var oldSecretToken = keycloakClient.getClientAccessToken(CLIENT_ID, CLIENT_SECRET);
+        assertThat(oldSecretToken).isNull();
+
+        // new password generates token
+        var newSecretToken = keycloakClient.getClientAccessToken(CLIENT_ID, CLIENT_SECRET_NEW);
+        assertThat(newSecretToken).isNotNull();
+    }
+
+    @Test
+    void clientErrorTest() {
         operator.start();
 
         // Null specification
@@ -512,7 +640,6 @@ class KeycloakClientControllerTest extends AbstractTest {
     }
 
     @Test
-    @Order(101)
     void clientNotExistingRealmTest() {
         var CLIENT_ID = "wrong-type";
         operator.start();
@@ -538,7 +665,6 @@ class KeycloakClientControllerTest extends AbstractTest {
     }
 
     @Test
-    @Order(103)
     void clientWrongTypeTest() {
         var CLIENT_ID = "wrong-type";
         operator.start();
@@ -558,6 +684,87 @@ class KeycloakClientControllerTest extends AbstractTest {
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
             assertThat(mfeStatus).isNotNull();
+            assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.ERROR);
+        });
+    }
+
+    @Test
+    void createUpdatePasswordFromSecretErrorTest() {
+        Base64.Encoder encoder = Base64.getEncoder();
+
+        var CLIENT_ID = "test-machine-secret-client-err1";
+        var CLIENT_SECRET = "test-client-secret";
+        var CLIENT_PWD_SECRET = "err-machine-secret-client-secret";
+        var CLIENT_PWD_KEY = "pwd";
+        operator.start();
+
+        KeycloakClient data = new KeycloakClient();
+        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        var kcClientSpec = new KeycloakClientSpec();
+        kcClientSpec.setRealm(REALM_QUARKUS);
+        kcClientSpec.setPasswordSecrets(CLIENT_PWD_SECRET);
+        kcClientSpec.setType(KeycloakAdminService.MACHINE_TYPE);
+        var kcConfig = new KCConfig();
+        kcClientSpec.setKcConfig(kcConfig);
+        kcConfig.setClientId(CLIENT_ID);
+        kcConfig.setPassword("someRandomPwdShouldBeIgnored");
+        kcConfig.setDefaultClientScopes(List.of("create-scope-1", "create-scope-2"));
+        kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1", "create.attr.2", "create.values.2"));
+        data.setSpec(kcClientSpec);
+
+        Secret secret = new Secret();
+        secret.setMetadata(new ObjectMetaBuilder().withName(kcClientSpec.getPasswordSecrets())
+                .withNamespace(client.getNamespace()).build());
+        secret.setData(Map.of("other-key", encoder.encodeToString(CLIENT_SECRET.getBytes())));
+
+        log.info("Creating secret object: {}", secret);
+        client.resource(secret).serverSideApply();
+
+        // test when the client does container pwd secret name but not the pwd key
+        log.info("Creating keycloak client object {}", data);
+        client.resource(data).serverSideApply();
+
+        log.info("Waiting 4 seconds and status is ERROR");
+
+        await().pollDelay(4, SECONDS).untilAsserted(() -> {
+            KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
+            assertThat(mfeStatus).isNotNull();
+            assertThat(mfeStatus.getResponseCode()).isEqualTo(500);
+            assertThat(mfeStatus.getMessage()).isEqualTo("Secret key is mandatory. No key found!");
+            assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.ERROR);
+        });
+
+        // test error when secret does not contain the right key
+        KeycloakClient data1 = new KeycloakClient();
+        data1.setMetadata(new ObjectMetaBuilder().withName("test-machine-secret-client-err2")
+                .withNamespace(client.getNamespace()).build());
+        data1.setSpec(kcClientSpec);
+        kcClientSpec.setPasswordKey(CLIENT_PWD_KEY);
+
+        log.info("Creating keycloak client object {}", data1);
+        client.resource(data1).serverSideApply();
+
+        log.info("Waiting 4 seconds and status is ERROR");
+
+        await().pollDelay(4, SECONDS).untilAsserted(() -> {
+            KeycloakClientStatus mfeStatus = client.resource(data1).get().getStatus();
+            assertThat(mfeStatus).isNotNull();
+            assertThat(mfeStatus.getMessage()).isEqualTo("Secret key is mandatory. No key secret found!");
+            assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.ERROR);
+        });
+
+        // test error when secret has the right key but the value is empty
+        secret.setData(Map.of(CLIENT_PWD_KEY, ""));
+
+        log.info("Update secret object {}", secret);
+        client.resource(secret).update();
+
+        log.info("Waiting 4 seconds and status is ERROR");
+
+        await().pollDelay(4, SECONDS).untilAsserted(() -> {
+            KeycloakClientStatus mfeStatus = client.resource(data1).get().getStatus();
+            assertThat(mfeStatus).isNotNull();
+            assertThat(mfeStatus.getMessage()).isEqualTo("Secret key '" + CLIENT_PWD_KEY + "' is mandatory. No value found!");
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.ERROR);
         });
     }
