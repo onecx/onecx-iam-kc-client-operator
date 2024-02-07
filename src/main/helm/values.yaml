@@ -1,5 +1,5 @@
 app:
-  name: operator
+  name: kc-client-operator
   image:
     repository: "onecx/onecx-iam-kc-client-operator"
   env:

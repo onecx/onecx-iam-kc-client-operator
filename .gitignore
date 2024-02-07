@@ -43,6 +43,7 @@ nb-configuration.xml
 /.quarkus/cli/plugins/
 
 # Chart
+.attach_*
 Chart.lock
 local.values.yaml
 src/main/helm/charts
