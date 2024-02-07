@@ -17,3 +17,11 @@ rules:
       - "update"
       - "create"
       - "delete"
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
