@@ -45,6 +45,8 @@ spec:
                     items:
                       type: string
                     type: array
+                  password:
+                    type: string
                   protocol:
                     type: string
                   publicClient:
@@ -53,8 +55,6 @@ spec:
                     items:
                       type: string
                     type: array
-                  secret:
-                    type: string
                   serviceAccountsEnabled:
                     type: boolean
                   standardFlowEnabled:
@@ -64,6 +64,10 @@ spec:
                       type: string
                     type: array
                 type: object
+              passwordKey:
+                type: string
+              passwordSecrets:
+                type: string
               realm:
                 type: string
               type:
