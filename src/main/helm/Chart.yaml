@@ -1,0 +1,17 @@
+apiVersion: v2
+name: onecx-iam-kc-client-operator
+version: 0.0.0
+appVersion: 0.0.0
+description: Onecx IAM KC client operator
+keywords:
+  - keycloak client
+sources:
+  - https://github.com/onecx/onecx-iam-kc-client-operator
+maintainers:
+  - name: Tkit Developer
+    email: tkit_dev@1000kit.org
+dependencies:
+  - name: helm-quarkus-app
+    alias: app
+    version: ^0
+    repository: oci://ghcr.io/onecx/charts
