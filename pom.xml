@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.tkit.onecx</groupId>
         <artifactId>onecx-quarkus3-parent</artifactId>
-        <version>0.37.0</version>
+        <version>0.47.0</version>
     </parent>
 
     <artifactId>onecx-iam-kc-client-operator</artifactId>
@@ -52,15 +52,15 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-keycloak-admin-client-reactive</artifactId>
+            <artifactId>quarkus-keycloak-admin-rest-client</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest-client-reactive</artifactId>
+            <artifactId>quarkus-rest-client</artifactId>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest-client-reactive-jackson</artifactId>
+            <artifactId>quarkus-rest-client-jackson</artifactId>
         </dependency>
 
         <!-- OTHER -->
@@ -97,52 +97,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler-plugin.version}</version>
-                <configuration>
-                    <compilerArgs>
-                        <arg>-parameters</arg>
-                        <arg>-Amapstruct.defaultComponentModel=jakarta-cdi</arg>
-                        <arg>-Amapstruct.defaultInjectionStrategy=constructor</arg>
-                        <arg>-Amapstruct.unmappedTargetPolicy=ERROR</arg>
-                        <arg>-Amapstruct.unmappedSourcePolicy=IGNORE</arg>
-                    </compilerArgs>
-                    <annotationProcessorPaths>
-                        <annotationProcessorPath>
-                            <groupId>org.hibernate</groupId>
-                            <artifactId>hibernate-jpamodelgen</artifactId>
-                            <version>${quarkus.hibernate-orm.version}</version>
-                        </annotationProcessorPath>
-                        <annotationProcessorPath>
-                            <groupId>io.quarkus</groupId>
-                            <artifactId>quarkus-panache-common</artifactId>
-                            <version>${quarkus.version}</version>
-                        </annotationProcessorPath>
-                        <annotationProcessorPath>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${mapstruct.version}</version>
-                        </annotationProcessorPath>
-                        <annotationProcessorPath>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                            <version>${projectlombok.version}</version>
-                        </annotationProcessorPath>
-                        <annotationProcessorPath>
-                            <groupId>io.quarkus</groupId>
-                            <artifactId>quarkus-extension-processor</artifactId>
-                            <version>${quarkus.version}</version>
-                        </annotationProcessorPath>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
 
 </project>
