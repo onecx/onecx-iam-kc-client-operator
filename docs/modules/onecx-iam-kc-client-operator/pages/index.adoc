@@ -1,0 +1,10 @@
+include::onecx-iam-kc-client-operator-attributes.adoc[opts=optional]
+
+== onecx-iam-kc-client-operator
+
+include::docs.adoc[opts=optional]
+
+=== Configuration
+include::onecx-iam-kc-client-operator.adoc[opts=optional]
+
+include::onecx-iam-kc-client-operator-docs.adoc[opts=optional]

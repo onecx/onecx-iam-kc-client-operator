@@ -17,9 +17,7 @@ import org.tkit.onecx.iam.kc.client.operator.KCConfig;
 import org.tkit.onecx.iam.kc.client.operator.KeycloakClient;
 import org.tkit.onecx.iam.kc.client.operator.config.KCClientConfig;
 import org.tkit.onecx.iam.kc.client.operator.config.KCDefaultConfig;
-import org.tkit.quarkus.log.cdi.LogService;
 
-@LogService
 @ApplicationScoped
 public class KeycloakAdminService {
 
@@ -122,7 +120,7 @@ public class KeycloakAdminService {
         try {
             cr.addDefaultClientScope(clientScope);
         } catch (Exception e) {
-            log.error("Error adding default client scope " + clientScope, e);
+            log.error("Error adding default client scope {}", clientScope, e);
         }
     }
 
@@ -130,7 +128,7 @@ public class KeycloakAdminService {
         try {
             cr.removeDefaultClientScope(clientScope);
         } catch (Exception e) {
-            log.error("Error removing default client scope " + clientScope, e);
+            log.error("Error removing default client scope {}", clientScope, e);
         }
     }
 
@@ -138,7 +136,7 @@ public class KeycloakAdminService {
         try {
             cr.addOptionalClientScope(clientScope);
         } catch (Exception e) {
-            log.error("Error adding optional client scope " + clientScope, e);
+            log.error("Error adding optional client scope {}", clientScope, e);
         }
     }
 
@@ -146,7 +144,7 @@ public class KeycloakAdminService {
         try {
             cr.removeOptionalClientScope(clientScope);
         } catch (Exception e) {
-            log.error("Error removing optional client scope " + clientScope, e);
+            log.error("Error removing optional client scope {}", clientScope, e);
         }
     }
 

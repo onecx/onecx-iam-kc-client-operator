@@ -1,0 +1,82 @@
+
+include::onecx-iam-kc-client-operator-attributes.adoc[opts=optional]
+
+=== Default properties
+
+.{properties-file}
+[%collapsible%open]
+====
+[source,properties,subs=attributes+]
+----
+quarkus.kubernetes-client.devservices.override-kubeconfig=true
+quarkus.keycloak.admin-client.server-url=http://keycloak:8080
+quarkus.keycloak.admin-client.realm=master
+quarkus.keycloak.admin-client.username=admin
+quarkus.keycloak.admin-client.password=admin
+quarkus.operator-sdk.helm.enabled=true
+onecx.iam.kc.client.realm=onecx
+onecx.iam.kc.client.config.ui.enabled=true
+onecx.iam.kc.client.config.ui.auth-type=client-secret
+onecx.iam.kc.client.config.ui.redirect-uris=*
+onecx.iam.kc.client.config.ui.web-origins=*
+onecx.iam.kc.client.config.ui.bearer-only=false
+onecx.iam.kc.client.config.ui.standard-flow=true
+onecx.iam.kc.client.config.ui.implicit-flow=false
+onecx.iam.kc.client.config.ui.direct-access=true
+onecx.iam.kc.client.config.ui.service-account=false
+onecx.iam.kc.client.config.ui.protocol=openid-connect
+onecx.iam.kc.client.config.ui.default-scopes=web-origins,roles,profile,email
+onecx.iam.kc.client.config.ui.public=true
+onecx.iam.kc.client.config.ui.add-def-scopes=true
+onecx.iam.kc.client.config.machine.enabled=true
+onecx.iam.kc.client.config.machine.auth-type=client-secret
+onecx.iam.kc.client.config.machine.bearer-only=false
+onecx.iam.kc.client.config.machine.standard-flow=false
+onecx.iam.kc.client.config.machine.implicit-flow=false
+onecx.iam.kc.client.config.machine.direct-access=false
+onecx.iam.kc.client.config.machine.service-account=true
+onecx.iam.kc.client.config.machine.protocol=openid-connect
+onecx.iam.kc.client.config.machine.default-scopes=web-origins,roles,profile,email
+onecx.iam.kc.client.config.machine.public=false
+onecx.iam.kc.client.config.machine.add-def-scopes=true
+----
+====
+
+=== Extensions
+
+include::onecx-iam-kc-client-operator-extensions.adoc[opts=optional]
+
+=== Container
+
+{docker-registry}[Docker registry]
+
+
+=== Helm
+
+{helm-registry}[Helm registry]
+
+Default values
+
+.{helm-file}
+[source,yaml]
+----
+app:
+  name: kc-client-operator
+  image:
+    repository: "onecx/onecx-iam-kc-client-operator"
+  env:
+    # See watchNamespaces
+    "QUARKUS_OPERATOR_SDK_CONTROLLERS_KC_NAMESPACES": "JOSDK_WATCH_CURRENT"
+  envCustom:
+    - name: KUBERNETES_NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+  serviceAccount:
+    enabled: true
+
+# Values: JOSDK_WATCH_CURRENT, JOSDK_ALL_NAMESPACES or comma separated list of namespaces
+watchNamespaces: "JOSDK_WATCH_CURRENT"
+
+----
+

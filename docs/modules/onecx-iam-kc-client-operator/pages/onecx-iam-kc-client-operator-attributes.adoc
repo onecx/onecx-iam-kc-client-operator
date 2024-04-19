@@ -1,0 +1,5 @@
+
+:docker-registry: https://github.com/onecx/onecx-iam-kc-client-operator/pkgs/container/onecx-iam-kc-client-operator
+:helm-registry: https://github.com/onecx/onecx-iam-kc-client-operator/pkgs/container/charts%2Fonecx-iam-kc-client-operator
+:properties-file: src/main/resources/application.properties
+:helm-file: src/main/helm/values.yaml
