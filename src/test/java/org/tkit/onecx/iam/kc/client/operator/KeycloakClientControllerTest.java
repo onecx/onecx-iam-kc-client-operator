@@ -5,15 +5,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.groovy.util.Maps;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.*;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.ClientScopeRepresentation;
+import org.keycloak.representations.idm.ProtocolMapperRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tkit.onecx.iam.kc.client.operator.service.KeycloakAdminService;
@@ -87,6 +91,8 @@ class KeycloakClientControllerTest extends AbstractTest {
         assertThat(clientRep.getDescription()).isEqualTo(kcConfig.getDescription());
         // validate that attributes are all in
         assertThat(clientRep.getAttributes()).containsAllEntriesOf(kcConfig.getAttributes());
+        // test Organization_ID should not be the part of the default scopes at this point
+        assertThat(clientRep.getDefaultClientScopes()).doesNotContain("Organization_ID");
         assertThat(clientRep.getOptionalClientScopes()).containsAll(kcConfig.getOptionalClientScopes());
 
         var token = keycloakClient.getAccessToken(USER_ALICE, CLIENT_ID);
@@ -165,6 +171,8 @@ class KeycloakClientControllerTest extends AbstractTest {
     @Test
     @Order(2)
     void updateUIClient() {
+        // create Organization_ID as default scope
+        createOrgIdScope();
         var CLIENT_ID = "test-ui-client";
         operator.start();
 
@@ -199,6 +207,8 @@ class KeycloakClientControllerTest extends AbstractTest {
         assertThat(clientRep.getDescription()).isEqualTo(kcConfig.getDescription());
         // validate that attributes are all in
         assertThat(clientRep.getAttributes()).containsAllEntriesOf(kcConfig.getAttributes());
+        // test if the new default scope for Realm Organization_ID was added correctly
+        assertThat(clientRep.getDefaultClientScopes()).contains("Organization_ID");
         assertThat(clientRep.getOptionalClientScopes()).containsAll(kcConfig.getOptionalClientScopes());
 
         var token = keycloakClient.getAccessToken(USER_ALICE, CLIENT_ID);
@@ -363,6 +373,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         kcClientSpec.setKcConfig(kcConfig);
         kcConfig.setClientId(CLIENT_ID);
         kcConfig.setPassword(CLIENT_SECRET);
+
         kcConfig.setDefaultClientScopes(List.of("create-scope-1", "create-scope-2"));
         kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1", "create.attr.2", "create.values.2"));
         data.setSpec(kcClientSpec);
@@ -394,6 +405,32 @@ class KeycloakClientControllerTest extends AbstractTest {
         var scopes = scopeString.split(" ");
         // validate all scopes are in
         assertThat(scopes).containsAll(kcConfig.getDefaultClientScopes());
+    }
+
+    void createOrgIdScope() {
+        ClientScopeRepresentation orgIdScope = new ClientScopeRepresentation();
+        orgIdScope.setId("test-id-12345");
+        orgIdScope.setName("Organization_ID");
+        orgIdScope.setDescription("Tenant organization ID");
+        orgIdScope.setProtocol("openid-connect");
+        ProtocolMapperRepresentation pmr = new ProtocolMapperRepresentation();
+        pmr.setId("pmr-test-1234");
+        pmr.setName("OrgIdMapper");
+        pmr.setProtocol("openid-connect");
+        pmr.setProtocolMapper("oidc-usermodel-attribute-mapper");
+        Map<String, String> mapperConfig = new HashMap<>();
+        mapperConfig.put("userinfo.token.claim", "true");
+        mapperConfig.put("multivalued", "false");
+        mapperConfig.put("user.attribute", "orgId");
+        mapperConfig.put("id.token.claim", "true");
+        mapperConfig.put("access.token.claim", "true");
+        mapperConfig.put("claim.name", "orgId");
+        mapperConfig.put("jsonType.label", "String");
+        pmr.setConfig(mapperConfig);
+        orgIdScope.setProtocolMappers(List.of(pmr));
+        try (Response res = keycloak.realm(REALM_QUARKUS).clientScopes().create(orgIdScope)) {
+            keycloak.realm(REALM_QUARKUS).addDefaultDefaultClientScope(orgIdScope.getId());
+        }
     }
 
     @Test
