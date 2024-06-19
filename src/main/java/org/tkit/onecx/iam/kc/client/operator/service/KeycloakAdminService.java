@@ -55,8 +55,7 @@ public class KeycloakAdminService {
         }
 
         // check scopes if they exist and create them if necessary
-        checkAndCreateScopes(client, realm);
-
+        var scopeNametoIdMap = checkAndCreateScopes(client, realm);
         if (Boolean.TRUE.equals(clientDefaultConfig.addDefaultScopes())) {
             var defaultScopesKC = keycloak.realm(realm).getDefaultDefaultClientScopes().stream()
                     .filter(csr -> csr.getProtocol().equals(PROTOCOL_OPENID_CONNECT)).map(ClientScopeRepresentation::getName)
@@ -77,25 +76,27 @@ public class KeycloakAdminService {
             }
         } else {
             // do update
-            var defaultClientScopes = client.getDefaultClientScopes();
-            var optionalClientScopes = client.getOptionalClientScopes();
+            var defaultClientScopeNames = client.getDefaultClientScopes();
+            var optionalClientScopeNames = client.getOptionalClientScopes();
             var clientToUpdate = keycloak.realm(realm).clients().get(clients.get(0).getId());
             clientToUpdate.update(client);
             // update default client scopes
             var toRemove = clientToUpdate.getDefaultClientScopes().stream()
-                    .filter(rep -> !defaultClientScopes.contains(rep.getName())).map(ClientScopeRepresentation::getId)
+                    .filter(rep -> !defaultClientScopeNames.contains(rep.getName())).map(ClientScopeRepresentation::getId)
                     .collect(Collectors.toSet());
-            var toAdd = new ArrayList<>(client.getDefaultClientScopes());
-            toAdd.removeAll(clientToUpdate.getDefaultClientScopes().stream().map(ClientScopeRepresentation::getName)
+            var toAdd = client.getDefaultClientScopes().stream().map(scopeNametoIdMap::get)
+                    .collect(Collectors.toCollection(ArrayList::new));
+            toAdd.removeAll(clientToUpdate.getDefaultClientScopes().stream().map(ClientScopeRepresentation::getId)
                     .collect(Collectors.toSet()));
             toRemove.forEach(scope -> removeDefaultClientScope(clientToUpdate, scope));
             toAdd.forEach(scope -> addDefaultClientScope(clientToUpdate, scope));
             // update optional client scopes
             var toRemoveOpt = clientToUpdate.getOptionalClientScopes().stream()
-                    .filter(rep -> !optionalClientScopes.contains(rep.getName())).map(ClientScopeRepresentation::getId)
+                    .filter(rep -> !optionalClientScopeNames.contains(rep.getName())).map(ClientScopeRepresentation::getId)
                     .collect(Collectors.toSet());
-            var toAddOpt = new ArrayList<>(client.getOptionalClientScopes());
-            toAddOpt.removeAll(clientToUpdate.getOptionalClientScopes().stream().map(ClientScopeRepresentation::getName)
+            var toAddOpt = client.getOptionalClientScopes().stream().map(scopeNametoIdMap::get)
+                    .collect(Collectors.toCollection(ArrayList::new));
+            toAddOpt.removeAll(clientToUpdate.getOptionalClientScopes().stream().map(ClientScopeRepresentation::getId)
                     .collect(Collectors.toSet()));
             toRemoveOpt.forEach(scope -> removeOptClientScope(clientToUpdate, scope));
             toAddOpt.forEach(scope -> addOptClientScope(clientToUpdate, scope));
@@ -148,8 +149,10 @@ public class KeycloakAdminService {
         }
     }
 
-    private void checkAndCreateScopes(ClientRepresentation clientRepresentation, String realm) {
+    private Map<String, String> checkAndCreateScopes(ClientRepresentation clientRepresentation, String realm) {
         var kcScopes = keycloak.realm(realm).clientScopes().findAll();
+        var kcScopesMap = kcScopes.stream()
+                .collect(Collectors.toMap(ClientScopeRepresentation::getName, ClientScopeRepresentation::getId));
         var scopeNames = kcScopes.stream().map(ClientScopeRepresentation::getName).collect(Collectors.toSet());
 
         var scopesToAdd = new HashSet<String>();
@@ -165,8 +168,14 @@ public class KeycloakAdminService {
 
         // add all missing scopes to keycloak
         if (!scopesToAdd.isEmpty()) {
-            scopesToAdd.forEach(scopeName -> createClientScope(scopeName, realm));
+            scopesToAdd.forEach(scopeName -> {
+                createClientScope(scopeName, realm);
+                kcScopesMap.put(scopeName, scopeName);
+            });
+
         }
+
+        return kcScopesMap;
     }
 
     private void createClientScope(String clientScopeName, String realm) {
