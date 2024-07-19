@@ -34,7 +34,7 @@ import io.quarkus.test.keycloak.client.KeycloakTestClient;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class KeycloakClientControllerTest extends AbstractTest {
 
-    final static Logger log = LoggerFactory.getLogger(KeycloakClientControllerTest.class);
+    static final Logger log = LoggerFactory.getLogger(KeycloakClientControllerTest.class);
 
     @Inject
     Operator operator;
@@ -57,18 +57,18 @@ class KeycloakClientControllerTest extends AbstractTest {
     @Test
     @Order(1)
     void createUIClient() {
-        var CLIENT_ID = "test-ui-client";
+        var clientId = "test-ui-client";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         var kcClientSpec = new KeycloakClientSpec();
         kcClientSpec.setRealm(REALM_QUARKUS);
         kcClientSpec.setType(KeycloakAdminService.UI_TYPE);
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
-        kcConfig.setClientId(CLIENT_ID);
-        kcConfig.setDescription(CLIENT_ID);
+        kcConfig.setClientId(clientId);
+        kcConfig.setDescription(clientId);
         kcConfig.setDefaultClientScopes(List.of("create-scope-1", "create-scope-2"));
         kcConfig.setOptionalClientScopes(List.of("opt-scope-1", "opt-scope-2"));
         kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1", "create.attr.2", "create.values.2"));
@@ -85,7 +85,7 @@ class KeycloakClientControllerTest extends AbstractTest {
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.CREATED);
         });
 
-        var clients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID);
+        var clients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(clientId);
         assertThat(clients).isNotEmpty();
         var clientRep = clients.get(0);
         assertThat(clientRep.getDescription()).isEqualTo(kcConfig.getDescription());
@@ -95,11 +95,11 @@ class KeycloakClientControllerTest extends AbstractTest {
         assertThat(clientRep.getDefaultClientScopes()).doesNotContain("Organization_ID");
         assertThat(clientRep.getOptionalClientScopes()).containsAll(kcConfig.getOptionalClientScopes());
 
-        var token = keycloakClient.getAccessToken(USER_ALICE, CLIENT_ID);
+        var token = keycloakClient.getAccessToken(USER_ALICE, clientId);
         assertThat(token).isNotNull();
 
         var jws = resolveToken(token);
-        assertThat((String) jws.getClaim(UI_TOKEN_CLIENT_CLAIM_NAME)).isEqualTo(CLIENT_ID);
+        assertThat((String) jws.getClaim(UI_TOKEN_CLIENT_CLAIM_NAME)).isEqualTo(clientId);
         var scopeString = (String) jws.getClaim(SCOPE_CLAIM_NAME);
         var scopes = scopeString.split(" ");
         // validate all scopes are in
@@ -109,21 +109,21 @@ class KeycloakClientControllerTest extends AbstractTest {
     @Test
     @Order(3)
     void createUIClientAllOptionsFilled() {
-        var CLIENT_ID = "test-ui-client-all-ops";
+        var clientId = "test-ui-client-all-ops";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         var kcClientSpec = new KeycloakClientSpec();
         kcClientSpec.setRealm(REALM_QUARKUS);
         kcClientSpec.setType(KeycloakAdminService.UI_TYPE);
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
-        kcConfig.setClientId(CLIENT_ID);
-        kcConfig.setDescription(CLIENT_ID);
+        kcConfig.setClientId(clientId);
+        kcConfig.setDescription(clientId);
         kcConfig.setEnabled(true);
         kcConfig.setClientAuthenticatorType("client-secret");
-        kcConfig.setPassword(CLIENT_ID);
+        kcConfig.setPassword(clientId);
         kcConfig.setRedirectUris(List.of("*", "localhost"));
         kcConfig.setWebOrigins(List.of("*", "localhost"));
         kcConfig.setBearerOnly(false);
@@ -149,7 +149,7 @@ class KeycloakClientControllerTest extends AbstractTest {
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.CREATED);
         });
 
-        var clients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID);
+        var clients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(clientId);
         assertThat(clients).isNotEmpty();
         var clientRep = clients.get(0);
         assertThat(clientRep.getDescription()).isEqualTo(kcConfig.getDescription());
@@ -157,11 +157,11 @@ class KeycloakClientControllerTest extends AbstractTest {
         assertThat(clientRep.getAttributes()).containsAllEntriesOf(kcConfig.getAttributes());
         assertThat(clientRep.getOptionalClientScopes()).containsAll(kcConfig.getOptionalClientScopes());
 
-        var token = keycloakClient.getAccessToken(USER_ALICE, CLIENT_ID);
+        var token = keycloakClient.getAccessToken(USER_ALICE, clientId);
         assertThat(token).isNotNull();
 
         var jws = resolveToken(token);
-        assertThat((String) jws.getClaim(UI_TOKEN_CLIENT_CLAIM_NAME)).isEqualTo(CLIENT_ID);
+        assertThat((String) jws.getClaim(UI_TOKEN_CLIENT_CLAIM_NAME)).isEqualTo(clientId);
         var scopeString = (String) jws.getClaim(SCOPE_CLAIM_NAME);
         var scopes = scopeString.split(" ");
         // validate all scopes are in
@@ -341,19 +341,19 @@ class KeycloakClientControllerTest extends AbstractTest {
     @Test
     @Order(10)
     void createMachineClient() {
-        var CLIENT_ID = "test-client";
-        var CLIENT_SECRET = "test-client-secret";
+        var clientId = "test-client";
+        var clientSecret = "test-client-secret";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         var kcClientSpec = new KeycloakClientSpec();
         kcClientSpec.setRealm(REALM_QUARKUS);
         kcClientSpec.setType(KeycloakAdminService.MACHINE_TYPE);
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
-        kcConfig.setClientId(CLIENT_ID);
-        kcConfig.setPassword(CLIENT_SECRET);
+        kcConfig.setClientId(clientId);
+        kcConfig.setPassword(clientSecret);
 
         kcConfig.setDefaultClientScopes(List.of("create-scope-1", "create-scope-2"));
         kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1", "create.attr.2", "create.values.2"));
@@ -367,18 +367,18 @@ class KeycloakClientControllerTest extends AbstractTest {
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.CREATED);
         });
 
-        var clients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID);
+        var clients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(clientId);
         assertThat(clients).isNotEmpty();
         var clientRep = clients.get(0);
         assertThat(clientRep.getDescription()).isEqualTo(kcConfig.getDescription());
         // validate that attributes are all in
         assertThat(clientRep.getAttributes()).containsAllEntriesOf(kcConfig.getAttributes());
 
-        var token = keycloakClient.getClientAccessToken(CLIENT_ID, CLIENT_SECRET);
+        var token = keycloakClient.getClientAccessToken(clientId, clientSecret);
         assertThat(token).isNotNull();
 
         var jws = resolveToken(token);
-        assertThat((String) jws.getClaim(UI_TOKEN_CLIENT_CLAIM_NAME)).isEqualTo(CLIENT_ID);
+        assertThat((String) jws.getClaim(UI_TOKEN_CLIENT_CLAIM_NAME)).isEqualTo(clientId);
         var scopeString = (String) jws.getClaim(SCOPE_CLAIM_NAME);
         var scopes = scopeString.split(" ");
         // validate all scopes are in
@@ -502,8 +502,8 @@ class KeycloakClientControllerTest extends AbstractTest {
         log.info("Old secret {}", secret);
 
         // update the password
-        var NEW_CLIENT_PASSWORD = "test-client-secret-new";
-        data.getSpec().getKcConfig().setPassword(NEW_CLIENT_PASSWORD);
+        var newClientPassword = "test-client-secret-new";
+        data.getSpec().getKcConfig().setPassword(newClientPassword);
 
         log.info("Updating test keycloak client with new password object: {}", data);
         client.resource(data).update();
@@ -520,7 +520,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         log.info("New secret {}", secret);
 
         var tokenWithOldPwd = keycloakClient.getClientAccessToken(clientId, clientSecret);
-        var tokenWithNewPwd = keycloakClient.getClientAccessToken(clientId, NEW_CLIENT_PASSWORD);
+        var tokenWithNewPwd = keycloakClient.getClientAccessToken(clientId, newClientPassword);
 
         assertThat(tokenWithOldPwd).isNull();
         assertThat(tokenWithNewPwd).isNotNull();
@@ -574,8 +574,8 @@ class KeycloakClientControllerTest extends AbstractTest {
         assertThat(token).isNotNull();
 
         // update the password
-        var CLIENT_SECRET_NEW = "new-machine-client-secret";
-        secret.setData(Map.of(kcClientSpec.getPasswordKey(), encoder.encodeToString(CLIENT_SECRET_NEW.getBytes())));
+        var clientSecretNew = "new-machine-client-secret";
+        secret.setData(Map.of(kcClientSpec.getPasswordKey(), encoder.encodeToString(clientSecretNew.getBytes())));
         log.info("Updating secret object: {}", secret);
         client.resource(secret).update();
 
@@ -591,7 +591,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         assertThat(oldSecretToken).isNull();
 
         // new password generates token
-        var newSecretToken = keycloakClient.getClientAccessToken(clientId, CLIENT_SECRET_NEW);
+        var newSecretToken = keycloakClient.getClientAccessToken(clientId, clientSecretNew);
         assertThat(newSecretToken).isNotNull();
     }
 
@@ -604,7 +604,6 @@ class KeycloakClientControllerTest extends AbstractTest {
         data.setMetadata(new ObjectMetaBuilder().withName("null-spec").withNamespace(client.getNamespace()).build());
         data.setSpec(null);
 
-        log.info("Creating test keycloak client object: {}", data);
         client.resource(data).serverSideApply();
 
         log.info("Waiting 4 seconds and status is still null");
@@ -647,16 +646,16 @@ class KeycloakClientControllerTest extends AbstractTest {
 
     @Test
     void clientNotExistingRealmTest() {
-        var CLIENT_ID = "wrong-type";
+        var clientId = "wrong-type";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         data.setSpec(new KeycloakClientSpec());
         data.getSpec().setType(KeycloakAdminService.MACHINE_TYPE);
         data.getSpec().setRealm("NOT_EXISTING");
         data.getSpec().setKcConfig(new KCConfig());
-        data.getSpec().getKcConfig().setClientId(CLIENT_ID);
+        data.getSpec().getKcConfig().setClientId(clientId);
 
         client.resource(data).serverSideApply();
 
