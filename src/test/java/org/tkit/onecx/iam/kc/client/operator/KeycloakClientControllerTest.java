@@ -237,7 +237,6 @@ class KeycloakClientControllerTest extends AbstractTest {
 
         client.resource(data).serverSideApply();
 
-
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
             assertThat(mfeStatus).isNotNull();
@@ -329,7 +328,6 @@ class KeycloakClientControllerTest extends AbstractTest {
 
         log.info("Deleting test keycloak client object: {}", data);
         client.resource(data).delete();
-
 
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             var clientResource = client.resource(data).get();
