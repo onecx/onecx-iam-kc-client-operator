@@ -11,16 +11,14 @@ import io.smallrye.jwt.auth.principal.DefaultJWTCallerPrincipal;
 
 public abstract class AbstractTest {
 
-    final static Logger log = LoggerFactory.getLogger(AbstractTest.class);
+    static final Logger log = LoggerFactory.getLogger(AbstractTest.class);
 
-    public static String REALM_QUARKUS = "quarkus";
-    public static String USER_ALICE = "alice";
-    public static String USER_BOB = "bob";
+    public static final String REALM_QUARKUS = "quarkus";
+    public static final String USER_ALICE = "alice";
 
-    public static String UI_TOKEN_CLIENT_CLAIM_NAME = Claims.azp.name();
+    public static final String UI_TOKEN_CLIENT_CLAIM_NAME = Claims.azp.name();
 
-    public static String MACHINE_TOKEN_CLIENT_CLAIM_NAME = "client_id";
-    public static String SCOPE_CLAIM_NAME = "scope";
+    public static final String SCOPE_CLAIM_NAME = "scope";
 
     public DefaultJWTCallerPrincipal resolveToken(String token) {
         try {
