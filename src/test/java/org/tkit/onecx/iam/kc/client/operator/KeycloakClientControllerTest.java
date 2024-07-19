@@ -173,18 +173,18 @@ class KeycloakClientControllerTest extends AbstractTest {
     void updateUIClient() {
         // create Organization_ID as default scope
         createOrgIdScope();
-        var CLIENT_ID = "test-ui-client";
+        var clientId = "test-ui-client";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         var kcClientSpec = new KeycloakClientSpec();
         kcClientSpec.setRealm(REALM_QUARKUS);
         kcClientSpec.setType(KeycloakAdminService.UI_TYPE);
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
-        kcConfig.setClientId(CLIENT_ID);
-        kcConfig.setDescription("UPDATED-" + CLIENT_ID);
+        kcConfig.setClientId(clientId);
+        kcConfig.setDescription("UPDATED-" + clientId);
         kcConfig.setDefaultClientScopes(List.of("test-scope-1", "test-scope-2"));
         kcConfig.setOptionalClientScopes(List.of("opt-scope-1", "opt-scope-2-updated"));
         kcConfig.setAttributes(Maps.of("create.attr.1", "udpate.values.1", "update.attr.2", "update.values.2"));
@@ -193,15 +193,13 @@ class KeycloakClientControllerTest extends AbstractTest {
         log.info("Update test keycloak client object: {}", data);
         client.resource(data).serverSideApply();
 
-        log.info("Waiting 4 seconds and status is UPDATED");
-
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
             assertThat(mfeStatus).isNotNull();
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.UPDATED);
         });
 
-        var clients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID);
+        var clients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(clientId);
         assertThat(clients).isNotEmpty();
         var clientRep = clients.get(0);
         assertThat(clientRep.getDescription()).isEqualTo(kcConfig.getDescription());
@@ -211,11 +209,11 @@ class KeycloakClientControllerTest extends AbstractTest {
         assertThat(clientRep.getDefaultClientScopes()).contains("Organization_ID");
         assertThat(clientRep.getOptionalClientScopes()).containsAll(kcConfig.getOptionalClientScopes());
 
-        var token = keycloakClient.getAccessToken(USER_ALICE, CLIENT_ID);
+        var token = keycloakClient.getAccessToken(USER_ALICE, clientId);
         assertThat(token).isNotNull();
 
         var jws = resolveToken(token);
-        assertThat((String) jws.getClaim(UI_TOKEN_CLIENT_CLAIM_NAME)).isEqualTo(CLIENT_ID);
+        assertThat((String) jws.getClaim(UI_TOKEN_CLIENT_CLAIM_NAME)).isEqualTo(clientId);
         var scopeString = (String) jws.getClaim(SCOPE_CLAIM_NAME);
         var scopes = scopeString.split(" ");
         // validate all scopes are in
@@ -225,22 +223,19 @@ class KeycloakClientControllerTest extends AbstractTest {
     @Test
     @Order(4)
     void createUIClientMinimumOption() {
-        var CLIENT_ID = "test-ui-client-min-ops";
+        var clientId = "test-ui-client-min-ops";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         var kcClientSpec = new KeycloakClientSpec();
         kcClientSpec.setType(KeycloakAdminService.UI_TYPE);
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
-        kcConfig.setClientId(CLIENT_ID);
+        kcConfig.setClientId(clientId);
         data.setSpec(kcClientSpec);
 
-        log.info("Creating test keycloak client object: {}", data);
         client.resource(data).serverSideApply();
-
-        log.info("Waiting 4 seconds and status is CREATED");
 
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
@@ -248,19 +243,16 @@ class KeycloakClientControllerTest extends AbstractTest {
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.CREATED);
         });
 
-        var clients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID);
+        var clients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(clientId);
         assertThat(clients).isNotEmpty();
 
-        var token = keycloakClient.getRealmAccessToken(REALM_QUARKUS, USER_ALICE, CLIENT_ID);
+        var token = keycloakClient.getRealmAccessToken(REALM_QUARKUS, USER_ALICE, clientId);
         assertThat(token).isNotNull();
 
         var jws = resolveToken(token);
-        assertThat((String) jws.getClaim(UI_TOKEN_CLIENT_CLAIM_NAME)).isEqualTo(CLIENT_ID);
+        assertThat((String) jws.getClaim(UI_TOKEN_CLIENT_CLAIM_NAME)).isEqualTo(clientId);
 
-        log.info("Deleting test keycloak client object: {}", data);
-        var statusDetails = client.resource(data).delete();
-
-        log.info("Waiting 4 seconds and status is CREATED");
+        client.resource(data).delete();
 
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             var mfeStatus = client.resource(data).get();
@@ -271,22 +263,19 @@ class KeycloakClientControllerTest extends AbstractTest {
     @Test
     @Order(5)
     void deleteUIClientMinimumOption() {
-        var CLIENT_ID = "test-ui-client-min-ops-for-del";
+        var clientId = "test-ui-client-min-ops-for-del";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         var kcClientSpec = new KeycloakClientSpec();
         kcClientSpec.setType(KeycloakAdminService.UI_TYPE);
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
-        kcConfig.setClientId(CLIENT_ID);
+        kcConfig.setClientId(clientId);
         data.setSpec(kcClientSpec);
 
-        log.info("Creating test keycloak client object: {}", data);
         client.resource(data).serverSideApply();
-
-        log.info("Waiting 4 seconds and status is CREATED");
 
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
@@ -294,43 +283,37 @@ class KeycloakClientControllerTest extends AbstractTest {
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.CREATED);
         });
 
-        var foundClients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID);
+        var foundClients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(clientId);
         assertThat(foundClients).isNotEmpty();
 
-        log.info("Deleting test keycloak client object: {}", data);
         client.resource(data).delete();
-
-        log.info("Waiting 4 seconds and status is CREATED");
 
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             var clientResource = client.resource(data).get();
             assertThat(clientResource).isNull();
         });
 
-        foundClients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID);
+        foundClients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(clientId);
         assertThat(foundClients).isEmpty();
     }
 
     @Test
     @Order(6)
     void deleteAlreadyDeletedUIClient() {
-        var CLIENT_ID = "test-ui-client-min-ops-for-del";
+        var clientId = "test-ui-client-min-ops-for-del";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         var kcClientSpec = new KeycloakClientSpec();
         kcClientSpec.setType(KeycloakAdminService.UI_TYPE);
         kcClientSpec.setRealm("quarkus");
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
-        kcConfig.setClientId(CLIENT_ID);
+        kcConfig.setClientId(clientId);
         data.setSpec(kcClientSpec);
 
-        log.info("Creating test keycloak client object: {}", data);
         client.resource(data).serverSideApply();
-
-        log.info("Waiting 4 seconds and status is CREATED");
 
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
@@ -338,7 +321,7 @@ class KeycloakClientControllerTest extends AbstractTest {
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.CREATED);
         });
 
-        var foundClients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID);
+        var foundClients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(clientId);
         assertThat(foundClients).isNotEmpty();
 
         keycloak.realm(REALM_QUARKUS).clients().get(foundClients.get(0).getId()).remove();
@@ -346,14 +329,12 @@ class KeycloakClientControllerTest extends AbstractTest {
         log.info("Deleting test keycloak client object: {}", data);
         client.resource(data).delete();
 
-        log.info("Waiting 4 seconds and status is CREATED");
-
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             var clientResource = client.resource(data).get();
             assertThat(clientResource).isNull();
         });
 
-        foundClients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID);
+        foundClients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(clientId);
         assertThat(foundClients).isEmpty();
     }
 
@@ -378,10 +359,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1", "create.attr.2", "create.values.2"));
         data.setSpec(kcClientSpec);
 
-        log.info("Creating test keycloak client object: {}", data);
         client.resource(data).serverSideApply();
-
-        log.info("Waiting 4 seconds and status is CREATED");
 
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
@@ -436,19 +414,19 @@ class KeycloakClientControllerTest extends AbstractTest {
     @Test
     @Order(11)
     void updateMachineClient() {
-        var CLIENT_ID = "test-client";
-        var CLIENT_SECRET = "test-client-secret";
+        var clientId = "test-client";
+        var clientSecret = "test-client-secret";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         var kcClientSpec = new KeycloakClientSpec();
         kcClientSpec.setRealm(REALM_QUARKUS);
         kcClientSpec.setType(KeycloakAdminService.MACHINE_TYPE);
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
-        kcConfig.setClientId(CLIENT_ID);
-        kcConfig.setPassword(CLIENT_SECRET);
+        kcConfig.setClientId(clientId);
+        kcConfig.setPassword(clientSecret);
         kcConfig.setDefaultClientScopes(List.of("create-scope-1", "update-scope-2"));
         kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1.update", "update.attr.2", "update.values.2"));
         data.setSpec(kcClientSpec);
@@ -456,26 +434,24 @@ class KeycloakClientControllerTest extends AbstractTest {
         log.info("Updating test keycloak client object: {}", data);
         client.resource(data).serverSideApply();
 
-        log.info("Waiting 4 seconds and status is UPDATED");
-
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
             assertThat(mfeStatus).isNotNull();
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.UPDATED);
         });
 
-        var clients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID);
+        var clients = keycloak.realm(REALM_QUARKUS).clients().findByClientId(clientId);
         assertThat(clients).isNotEmpty();
         var clientRep = clients.get(0);
         assertThat(clientRep.getDescription()).isEqualTo(kcConfig.getDescription());
         // validate that attributes are all in
         assertThat(clientRep.getAttributes()).containsAllEntriesOf(kcConfig.getAttributes());
 
-        var token = keycloakClient.getClientAccessToken(CLIENT_ID, CLIENT_SECRET);
+        var token = keycloakClient.getClientAccessToken(clientId, clientSecret);
         assertThat(token).isNotNull();
 
         var jws = resolveToken(token);
-        assertThat((String) jws.getClaim(UI_TOKEN_CLIENT_CLAIM_NAME)).isEqualTo(CLIENT_ID);
+        assertThat((String) jws.getClaim(UI_TOKEN_CLIENT_CLAIM_NAME)).isEqualTo(clientId);
         var scopeString = (String) jws.getClaim(SCOPE_CLAIM_NAME);
         var scopes = scopeString.split(" ");
         // validate all scopes are in
@@ -495,24 +471,23 @@ class KeycloakClientControllerTest extends AbstractTest {
 
     @Test
     void updateMachinePwdClient() {
-        var CLIENT_ID = "test-client-pwd-chg";
-        var CLIENT_SECRET = "test-client-secret";
+        var clientId = "test-client-pwd-chg";
+        var clientSecret = "test-client-secret";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         var kcClientSpec = new KeycloakClientSpec();
         kcClientSpec.setRealm(REALM_QUARKUS);
         kcClientSpec.setType(KeycloakAdminService.MACHINE_TYPE);
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
-        kcConfig.setClientId(CLIENT_ID);
-        kcConfig.setPassword(CLIENT_SECRET);
+        kcConfig.setClientId(clientId);
+        kcConfig.setPassword(clientSecret);
         kcConfig.setDefaultClientScopes(List.of("create-scope-1", "update-scope-2"));
         kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1.update", "update.attr.2", "update.values.2"));
         data.setSpec(kcClientSpec);
 
-        log.info("Creating test keycloak client object: {}", data);
         client.resource(data).serverSideApply();
 
         log.info("Waiting 4 seconds and status is UPDATED");
@@ -523,7 +498,7 @@ class KeycloakClientControllerTest extends AbstractTest {
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.CREATED);
         });
 
-        var secret = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID).get(0).getSecret();
+        var secret = keycloak.realm(REALM_QUARKUS).clients().findByClientId(clientId).get(0).getSecret();
         log.info("Old secret {}", secret);
 
         // update the password
@@ -541,11 +516,11 @@ class KeycloakClientControllerTest extends AbstractTest {
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.UPDATED);
         });
 
-        secret = keycloak.realm(REALM_QUARKUS).clients().findByClientId(CLIENT_ID).get(0).getSecret();
+        secret = keycloak.realm(REALM_QUARKUS).clients().findByClientId(clientId).get(0).getSecret();
         log.info("New secret {}", secret);
 
-        var tokenWithOldPwd = keycloakClient.getClientAccessToken(CLIENT_ID, CLIENT_SECRET);
-        var tokenWithNewPwd = keycloakClient.getClientAccessToken(CLIENT_ID, NEW_CLIENT_PASSWORD);
+        var tokenWithOldPwd = keycloakClient.getClientAccessToken(clientId, clientSecret);
+        var tokenWithNewPwd = keycloakClient.getClientAccessToken(clientId, NEW_CLIENT_PASSWORD);
 
         assertThat(tokenWithOldPwd).isNull();
         assertThat(tokenWithNewPwd).isNotNull();
@@ -555,22 +530,22 @@ class KeycloakClientControllerTest extends AbstractTest {
     void createUpdatePasswordFromSecretTest() {
         Base64.Encoder encoder = Base64.getEncoder();
 
-        var CLIENT_ID = "test-machine-secret-client";
-        var CLIENT_SECRET = "test-client-secret";
-        var CLIENT_PWD_SECRET = "test-machine-secret-client-secret";
-        var CLIENT_PWD_KEY = "pwd";
+        var clientId = "test-machine-secret-client";
+        var clientSecret = "test-client-secret";
+        var clientPwdSecret = "test-machine-secret-client-secret";
+        var clientPwdKey = "pwd";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         var kcClientSpec = new KeycloakClientSpec();
         kcClientSpec.setRealm(REALM_QUARKUS);
-        kcClientSpec.setPasswordKey(CLIENT_PWD_KEY);
-        kcClientSpec.setPasswordSecrets(CLIENT_PWD_SECRET);
+        kcClientSpec.setPasswordKey(clientPwdKey);
+        kcClientSpec.setPasswordSecrets(clientPwdSecret);
         kcClientSpec.setType(KeycloakAdminService.MACHINE_TYPE);
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
-        kcConfig.setClientId(CLIENT_ID);
+        kcConfig.setClientId(clientId);
         kcConfig.setPassword("someRandomPwdShouldBeIgnored");
         kcConfig.setDefaultClientScopes(List.of("create-scope-1", "create-scope-2"));
         kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1", "create.attr.2", "create.values.2"));
@@ -579,7 +554,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         Secret secret = new Secret();
         secret.setMetadata(new ObjectMetaBuilder().withName(kcClientSpec.getPasswordSecrets())
                 .withNamespace(client.getNamespace()).build());
-        secret.setData(Map.of(kcClientSpec.getPasswordKey(), encoder.encodeToString(CLIENT_SECRET.getBytes())));
+        secret.setData(Map.of(kcClientSpec.getPasswordKey(), encoder.encodeToString(clientSecret.getBytes())));
 
         log.info("Creating secret object: {}", secret);
         client.resource(secret).serverSideApply();
@@ -595,7 +570,7 @@ class KeycloakClientControllerTest extends AbstractTest {
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.CREATED);
         });
 
-        var token = keycloakClient.getClientAccessToken(CLIENT_ID, CLIENT_SECRET);
+        var token = keycloakClient.getClientAccessToken(clientId, clientSecret);
         assertThat(token).isNotNull();
 
         // update the password
@@ -612,11 +587,11 @@ class KeycloakClientControllerTest extends AbstractTest {
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.UPDATED);
         });
         // old password token empty
-        var oldSecretToken = keycloakClient.getClientAccessToken(CLIENT_ID, CLIENT_SECRET);
+        var oldSecretToken = keycloakClient.getClientAccessToken(clientId, clientSecret);
         assertThat(oldSecretToken).isNull();
 
         // new password generates token
-        var newSecretToken = keycloakClient.getClientAccessToken(CLIENT_ID, CLIENT_SECRET_NEW);
+        var newSecretToken = keycloakClient.getClientAccessToken(clientId, CLIENT_SECRET_NEW);
         assertThat(newSecretToken).isNotNull();
     }
 
@@ -645,10 +620,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         data.setMetadata(new ObjectMetaBuilder().withName("empty-spec").withNamespace(client.getNamespace()).build());
         data.setSpec(new KeycloakClientSpec());
 
-        log.info("Creating test keycloak client object: {}", data);
         client.resource(data).serverSideApply();
-
-        log.info("Waiting 4 seconds and status has an ERROR");
 
         KeycloakClient finalData2 = data;
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
@@ -663,10 +635,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         data.setSpec(new KeycloakClientSpec());
         data.getSpec().setKcConfig(new KCConfig());
 
-        log.info("Creating test keycloak client object: {}", data);
         client.resource(data).serverSideApply();
-
-        log.info("Waiting 4 seconds and status has an ERROR");
 
         KeycloakClient finalData3 = data;
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
@@ -689,10 +658,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         data.getSpec().setKcConfig(new KCConfig());
         data.getSpec().getKcConfig().setClientId(CLIENT_ID);
 
-        log.info("Creating test keycloak client object: {}", data);
         client.resource(data).serverSideApply();
-
-        log.info("Waiting 4 seconds and status has an ERROR");
 
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             KeycloakClientStatus mfeStatus = client.resource(data).get().getStatus();
@@ -703,17 +669,16 @@ class KeycloakClientControllerTest extends AbstractTest {
 
     @Test
     void clientWrongTypeTest() {
-        var CLIENT_ID = "wrong-type";
+        var clientId = "wrong-type";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         data.setSpec(new KeycloakClientSpec());
         data.getSpec().setType("CUSTOM_TYPE");
         data.getSpec().setKcConfig(new KCConfig());
-        data.getSpec().getKcConfig().setClientId(CLIENT_ID);
+        data.getSpec().getKcConfig().setClientId(clientId);
 
-        log.info("Creating test keycloak client object: {}", data);
         client.resource(data).serverSideApply();
 
         log.info("Waiting 4 seconds and status has an ERROR");
@@ -729,21 +694,21 @@ class KeycloakClientControllerTest extends AbstractTest {
     void createUpdatePasswordFromSecretErrorTest() {
         Base64.Encoder encoder = Base64.getEncoder();
 
-        var CLIENT_ID = "test-machine-secret-client-err1";
-        var CLIENT_SECRET = "test-client-secret";
-        var CLIENT_PWD_SECRET = "err-machine-secret-client-secret";
-        var CLIENT_PWD_KEY = "pwd";
+        var clientId = "test-machine-secret-client-err1";
+        var clientSecret = "test-client-secret";
+        var clientPwdSecret = "err-machine-secret-client-secret";
+        var clientPwdKey = "pwd";
         operator.start();
 
         KeycloakClient data = new KeycloakClient();
-        data.setMetadata(new ObjectMetaBuilder().withName(CLIENT_ID).withNamespace(client.getNamespace()).build());
+        data.setMetadata(new ObjectMetaBuilder().withName(clientId).withNamespace(client.getNamespace()).build());
         var kcClientSpec = new KeycloakClientSpec();
         kcClientSpec.setRealm(REALM_QUARKUS);
-        kcClientSpec.setPasswordSecrets(CLIENT_PWD_SECRET);
+        kcClientSpec.setPasswordSecrets(clientPwdSecret);
         kcClientSpec.setType(KeycloakAdminService.MACHINE_TYPE);
         var kcConfig = new KCConfig();
         kcClientSpec.setKcConfig(kcConfig);
-        kcConfig.setClientId(CLIENT_ID);
+        kcConfig.setClientId(clientId);
         kcConfig.setPassword("someRandomPwdShouldBeIgnored");
         kcConfig.setDefaultClientScopes(List.of("create-scope-1", "create-scope-2"));
         kcConfig.setAttributes(Maps.of("create.attr.1", "create.values.1", "create.attr.2", "create.values.2"));
@@ -752,13 +717,11 @@ class KeycloakClientControllerTest extends AbstractTest {
         Secret secret = new Secret();
         secret.setMetadata(new ObjectMetaBuilder().withName(kcClientSpec.getPasswordSecrets())
                 .withNamespace(client.getNamespace()).build());
-        secret.setData(Map.of("other-key", encoder.encodeToString(CLIENT_SECRET.getBytes())));
+        secret.setData(Map.of("other-key", encoder.encodeToString(clientSecret.getBytes())));
 
-        log.info("Creating secret object: {}", secret);
         client.resource(secret).serverSideApply();
 
         // test when the client does container pwd secret name but not the pwd key
-        log.info("Creating keycloak client object {}", data);
         client.resource(data).serverSideApply();
 
         log.info("Waiting 4 seconds and status is ERROR");
@@ -776,9 +739,8 @@ class KeycloakClientControllerTest extends AbstractTest {
         data1.setMetadata(new ObjectMetaBuilder().withName("test-machine-secret-client-err2")
                 .withNamespace(client.getNamespace()).build());
         data1.setSpec(kcClientSpec);
-        kcClientSpec.setPasswordKey(CLIENT_PWD_KEY);
+        kcClientSpec.setPasswordKey(clientPwdKey);
 
-        log.info("Creating keycloak client object {}", data1);
         client.resource(data1).serverSideApply();
 
         log.info("Waiting 4 seconds and status is ERROR");
@@ -791,7 +753,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         });
 
         // test error when secret has the right key but the value is empty
-        secret.setData(Map.of(CLIENT_PWD_KEY, ""));
+        secret.setData(Map.of(clientPwdKey, ""));
 
         log.info("Update secret object {}", secret);
         client.resource(secret).update();
@@ -801,7 +763,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             KeycloakClientStatus mfeStatus = client.resource(data1).get().getStatus();
             assertThat(mfeStatus).isNotNull();
-            assertThat(mfeStatus.getMessage()).isEqualTo("Secret key '" + CLIENT_PWD_KEY + "' is mandatory. No value found!");
+            assertThat(mfeStatus.getMessage()).isEqualTo("Secret key '" + clientPwdKey + "' is mandatory. No value found!");
             assertThat(mfeStatus.getStatus()).isNotNull().isEqualTo(KeycloakClientStatus.Status.ERROR);
         });
     }

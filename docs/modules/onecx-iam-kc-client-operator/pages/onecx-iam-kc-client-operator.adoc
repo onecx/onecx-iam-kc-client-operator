@@ -231,7 +231,7 @@ endif::add-copy-button-to-env-var[]
 |`openid-connect`
 
 
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-attributes-attributes]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-attributes-attributes[onecx.iam.kc.client.config."config".attributes]`
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-attributes-attributes]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-attributes-attributes[onecx.iam.kc.client.config."config".attributes."attributes"]`
 
 
 [.description]
@@ -239,12 +239,13 @@ a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-attributes-a
 Attributes map for the client.
 
 ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__ATTRIBUTES+++[]
+Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__ATTRIBUTES__ATTRIBUTES_+++[]
 endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__ATTRIBUTES+++`
+Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__ATTRIBUTES__ATTRIBUTES_+++`
 endif::add-copy-button-to-env-var[]
---|`Map<String,String>` 
+--|link:https://docs.oracle.com/javase/8/docs/api/java/lang/String.html[String]
+ 
 |
 
 

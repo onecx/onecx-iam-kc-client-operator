@@ -49,7 +49,7 @@ class KeycloakClientControllerMockTest extends AbstractTest {
 
     }
 
-    public class MockClientResource implements ClientResource {
+    public static class MockClientResource implements ClientResource {
 
         @Override
         public ManagementPermissionReference setPermissions(
@@ -74,12 +74,12 @@ class KeycloakClientControllerMockTest extends AbstractTest {
 
         @Override
         public void update(ClientRepresentation clientRepresentation) {
-
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void remove() {
-
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -129,7 +129,7 @@ class KeycloakClientControllerMockTest extends AbstractTest {
 
         @Override
         public void pushRevocation() {
-
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -179,12 +179,12 @@ class KeycloakClientControllerMockTest extends AbstractTest {
 
         @Override
         public void registerNode(Map<String, String> map) {
-
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void unregisterNode(String s) {
-
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -204,7 +204,7 @@ class KeycloakClientControllerMockTest extends AbstractTest {
 
         @Override
         public void invalidateRotatedSecret() {
-
+            throw new UnsupportedOperationException();
         }
     }
 
