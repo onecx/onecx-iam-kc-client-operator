@@ -41,7 +41,7 @@ public class KeycloakClientController
         String message = e.getMessage();
         if (e.getCause() instanceof WebApplicationException re) {
             responseCode = re.getResponse().getStatus();
-            message = re.getMessage();
+            message = re.getResponse().readEntity(String.class);
         }
         if (e.getCause() instanceof TypeNotSupportedException tnse) {
             // set the response code as 500 INTERNAL Server error
