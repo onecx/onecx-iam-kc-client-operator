@@ -18,6 +18,8 @@ import org.tkit.onecx.iam.kc.client.operator.KCConfig;
 import org.tkit.onecx.iam.kc.client.operator.KeycloakClient;
 import org.tkit.onecx.iam.kc.client.operator.config.KCClientConfig;
 import org.tkit.onecx.iam.kc.client.operator.config.KCDefaultConfig;
+import org.tkit.onecx.iam.kc.client.operator.models.ClientRepresentationMapper;
+import org.tkit.onecx.iam.kc.client.operator.models.ExtClientRepresentation;
 
 @ApplicationScoped
 public class KeycloakAdminService {
@@ -34,6 +36,9 @@ public class KeycloakAdminService {
 
     @Inject
     KCClientConfig kcClientConfig;
+
+    @Inject
+    ClientRepresentationMapper mapper;
 
     @ActivateRequestContext
     public CreateClientResponse createClient(KeycloakClient keycloakClient) {
@@ -72,7 +77,8 @@ public class KeycloakAdminService {
 
         if (clients.isEmpty()) {
             // do create
-            try (var resp = keycloak.realm(realm).clients().create(client)) {
+            ExtClientRepresentation extClient = mapper.create(client);
+            try (var resp = keycloak.realm(realm).clients().create(extClient)) {
                 return CreateClientResponse.of(resp.getStatus(), resp.readEntity(String.class));
             }
         } else {
@@ -80,7 +86,8 @@ public class KeycloakAdminService {
             var defaultClientScopeNames = client.getDefaultClientScopes();
             var optionalClientScopeNames = client.getOptionalClientScopes();
             var clientToUpdate = keycloak.realm(realm).clients().get(clients.get(0).getId());
-            clientToUpdate.update(client);
+            ExtClientRepresentation extClient = mapper.create(client);
+            clientToUpdate.update(extClient);
             // update default client scopes
             var toRemove = clientToUpdate.getDefaultClientScopes().stream()
                     .filter(rep -> !defaultClientScopeNames.contains(rep.getName())).map(ClientScopeRepresentation::getId)
