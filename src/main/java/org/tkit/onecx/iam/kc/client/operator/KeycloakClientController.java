@@ -87,23 +87,24 @@ public class KeycloakClientController
             keycloakClient.getSpec().getKcConfig().setPassword(new String(password));
         }
 
-        int responseCode = service.createClient(keycloakClient);
+        var response = service.createClient(keycloakClient);
 
-        updateStatusPojo(keycloakClient, responseCode);
+        updateStatusPojo(keycloakClient, response);
         log.info("Resource '{}' reconciled - updating status", keycloakClient.getMetadata().getName());
         return UpdateControl.updateStatus(keycloakClient);
     }
 
-    private void updateStatusPojo(KeycloakClient keycloakClient, int responseCode) {
+    private void updateStatusPojo(KeycloakClient keycloakClient, KeycloakAdminService.CreateClientResponse response) {
         KeycloakClientStatus result = new KeycloakClientStatus();
         KeycloakClientSpec spec = keycloakClient.getSpec();
         result.setClientId(spec.getKcConfig().getClientId());
-        result.setResponseCode(responseCode);
+        result.setResponseCode(response.getStatusCode());
+        result.setMessage(response.getMessage());
         var status = KeycloakClientStatus.Status.UNDEFINED;
-        if (responseCode == 200) {
+        if (response.getStatusCode() == 200) {
             status = KeycloakClientStatus.Status.UPDATED;
         }
-        if (responseCode == 201) {
+        if (response.getStatusCode() == 201) {
             status = KeycloakClientStatus.Status.CREATED;
         }
 

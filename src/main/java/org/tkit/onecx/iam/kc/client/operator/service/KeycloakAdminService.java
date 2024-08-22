@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.ClientResource;
@@ -35,7 +36,7 @@ public class KeycloakAdminService {
     KCClientConfig kcClientConfig;
 
     @ActivateRequestContext
-    public int createClient(KeycloakClient keycloakClient) {
+    public CreateClientResponse createClient(KeycloakClient keycloakClient) {
         var spec = keycloakClient.getSpec();
         var clientId = spec.getKcConfig().getClientId();
         var realm = spec.getRealm() != null ? spec.getRealm() : kcClientConfig.realm();
@@ -72,7 +73,7 @@ public class KeycloakAdminService {
         if (clients.isEmpty()) {
             // do create
             try (var resp = keycloak.realm(realm).clients().create(client)) {
-                return resp.getStatus();
+                return CreateClientResponse.of(resp.getStatus(), resp.readEntity(String.class));
             }
         } else {
             // do update
@@ -101,7 +102,7 @@ public class KeycloakAdminService {
             toRemoveOpt.forEach(scope -> removeOptClientScope(clientToUpdate, scope));
             toAddOpt.forEach(scope -> addOptClientScope(clientToUpdate, scope));
 
-            return 200;
+            return CreateClientResponse.of(Response.Status.OK.getStatusCode());
         }
     }
 
@@ -256,6 +257,32 @@ public class KeycloakAdminService {
         }
 
         return defaultValue;
+    }
+
+    public static class CreateClientResponse {
+        private final int statusCode;
+        private final String message;
+
+        public static CreateClientResponse of(int statusCode) {
+            return of(statusCode, null);
+        }
+
+        public static CreateClientResponse of(int statusCode, String message) {
+            return new CreateClientResponse(statusCode, message);
+        }
+
+        private CreateClientResponse(int statusCode, String message) {
+            this.message = message;
+            this.statusCode = statusCode;
+        }
+
+        public int getStatusCode() {
+            return statusCode;
+        }
+
+        public String getMessage() {
+            return message;
+        }
     }
 
 }
