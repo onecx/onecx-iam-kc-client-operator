@@ -65,12 +65,17 @@ app:
   name: kc-client-operator
   image:
     repository: "onecx/onecx-iam-kc-client-operator"
-  env:
-    # See watchNamespaces
-    "QUARKUS_OPERATOR_SDK_CONTROLLERS_KC_NAMESPACES": "JOSDK_WATCH_CURRENT"
   envCustom:
     - name: KUBERNETES_NAMESPACE
       valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+  serviceAccount:
+    enabled: true
+
+----
+
+ueFrom:
         fieldRef:
           fieldPath: metadata.namespace
   serviceAccount:

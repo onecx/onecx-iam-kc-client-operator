@@ -1,0 +1,27 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.app.name }}-role
+rules:
+  - apiGroups:
+      - "onecx.tkit.org"
+    resources:
+      - "keycloakclients"
+      - "keycloakclients/status"
+      - "keycloakclients/finalizers"
+    verbs:
+      - "get"
+      - "list"
+      - "watch"
+      - "patch"
+      - "update"
+      - "create"
+      - "delete"
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch

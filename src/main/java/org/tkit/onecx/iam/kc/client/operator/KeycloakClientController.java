@@ -24,7 +24,7 @@ import io.javaoperatorsdk.operator.processing.event.source.filter.OnAddFilter;
 import io.javaoperatorsdk.operator.processing.event.source.filter.OnUpdateFilter;
 import io.javaoperatorsdk.operator.processing.event.source.informer.InformerEventSource;
 
-@ControllerConfiguration(name = "kc", onAddFilter = KeycloakClientController.AddFilter.class, onUpdateFilter = KeycloakClientController.UpdateFilter.class)
+@ControllerConfiguration(name = "kc", namespaces = Constants.WATCH_CURRENT_NAMESPACE, onAddFilter = KeycloakClientController.AddFilter.class, onUpdateFilter = KeycloakClientController.UpdateFilter.class)
 public class KeycloakClientController
         implements Reconciler<KeycloakClient>, ErrorStatusHandler<KeycloakClient>, Cleaner<KeycloakClient>,
         EventSourceInitializer<KeycloakClient> {
