@@ -1,21 +1,19 @@
-
 :summaryTableId: onecx-iam-kc-client-operator
 [.configuration-legend]
 icon:lock[title=Fixed at build time] Configuration property fixed at build time - All other configuration properties are overridable at runtime
 [.configuration-reference.searchable, cols="80,.^10,.^10"]
 |===
 
-h|[[onecx-iam-kc-client-operator_configuration]]link:#onecx-iam-kc-client-operator_configuration[Configuration property]
-
+h|[.header-title]##Configuration property##
 h|Type
 h|Default
 
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-realm]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-realm[onecx.iam.kc.client.realm]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-realm]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-realm[`onecx.iam.kc.client.realm`]##
 
 [.description]
 --
 Define realm where to insert/update/delete the clients
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_REALM+++[]
@@ -23,16 +21,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_REALM+++`
 endif::add-copy-button-to-env-var[]
---|string 
+--
+|string
 |`onecx`
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-add-def-scopes]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-add-def-scopes[onecx.iam.kc.client.config."config".add-def-scopes]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-add-def-scopes]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-add-def-scopes[`onecx.iam.kc.client.config."config".add-def-scopes`]##
 
 [.description]
 --
 Add default scopes from realm to the client.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__ADD_DEF_SCOPES+++[]
@@ -40,16 +38,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__ADD_DEF_SCOPES+++`
 endif::add-copy-button-to-env-var[]
---|boolean 
+--
+|boolean
 |`true`
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-enabled]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-enabled[onecx.iam.kc.client.config."config".enabled]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-enabled]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-enabled[`onecx.iam.kc.client.config."config".enabled`]##
 
 [.description]
 --
 Enable the client
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__ENABLED+++[]
@@ -57,16 +55,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__ENABLED+++`
 endif::add-copy-button-to-env-var[]
---|boolean 
+--
+|boolean
 |`true`
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-auth-type]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-auth-type[onecx.iam.kc.client.config."config".auth-type]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-auth-type]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-auth-type[`onecx.iam.kc.client.config."config".auth-type`]##
 
 [.description]
 --
 Authentication type.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__AUTH_TYPE+++[]
@@ -74,16 +72,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__AUTH_TYPE+++`
 endif::add-copy-button-to-env-var[]
---|string 
+--
+|string
 |`client-secret`
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-redirect-uris]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-redirect-uris[onecx.iam.kc.client.config."config".redirect-uris]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-redirect-uris]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-redirect-uris[`onecx.iam.kc.client.config."config".redirect-uris`]##
 
 [.description]
 --
 List of redirect uris.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__REDIRECT_URIS+++[]
@@ -91,16 +89,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__REDIRECT_URIS+++`
 endif::add-copy-button-to-env-var[]
---|list of string 
+--
+|list of string
 |
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-web-origins]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-web-origins[onecx.iam.kc.client.config."config".web-origins]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-web-origins]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-web-origins[`onecx.iam.kc.client.config."config".web-origins`]##
 
 [.description]
 --
 List of web origins
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__WEB_ORIGINS+++[]
@@ -108,16 +106,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__WEB_ORIGINS+++`
 endif::add-copy-button-to-env-var[]
---|list of string 
+--
+|list of string
 |
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-bearer-only]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-bearer-only[onecx.iam.kc.client.config."config".bearer-only]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-bearer-only]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-bearer-only[`onecx.iam.kc.client.config."config".bearer-only`]##
 
 [.description]
 --
 Bearer token only.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__BEARER_ONLY+++[]
@@ -125,16 +123,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__BEARER_ONLY+++`
 endif::add-copy-button-to-env-var[]
---|boolean 
+--
+|boolean
 |`false`
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-standard-flow]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-standard-flow[onecx.iam.kc.client.config."config".standard-flow]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-standard-flow]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-standard-flow[`onecx.iam.kc.client.config."config".standard-flow`]##
 
 [.description]
 --
 Standard flow enabled.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__STANDARD_FLOW+++[]
@@ -142,16 +140,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__STANDARD_FLOW+++`
 endif::add-copy-button-to-env-var[]
---|boolean 
+--
+|boolean
 |`false`
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-implicit-flow]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-implicit-flow[onecx.iam.kc.client.config."config".implicit-flow]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-implicit-flow]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-implicit-flow[`onecx.iam.kc.client.config."config".implicit-flow`]##
 
 [.description]
 --
 Implicit flow enabled.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__IMPLICIT_FLOW+++[]
@@ -159,16 +157,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__IMPLICIT_FLOW+++`
 endif::add-copy-button-to-env-var[]
---|boolean 
+--
+|boolean
 |`false`
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-direct-access]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-direct-access[onecx.iam.kc.client.config."config".direct-access]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-direct-access]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-direct-access[`onecx.iam.kc.client.config."config".direct-access`]##
 
 [.description]
 --
 Enable direct access grants.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__DIRECT_ACCESS+++[]
@@ -176,16 +174,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__DIRECT_ACCESS+++`
 endif::add-copy-button-to-env-var[]
---|boolean 
+--
+|boolean
 |`false`
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-service-account]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-service-account[onecx.iam.kc.client.config."config".service-account]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-service-account]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-service-account[`onecx.iam.kc.client.config."config".service-account`]##
 
 [.description]
 --
 Enable service account.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__SERVICE_ACCOUNT+++[]
@@ -193,16 +191,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__SERVICE_ACCOUNT+++`
 endif::add-copy-button-to-env-var[]
---|boolean 
+--
+|boolean
 |`true`
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-public]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-public[onecx.iam.kc.client.config."config".public]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-public]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-public[`onecx.iam.kc.client.config."config".public`]##
 
 [.description]
 --
 Public client flag.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__PUBLIC+++[]
@@ -210,16 +208,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__PUBLIC+++`
 endif::add-copy-button-to-env-var[]
---|boolean 
+--
+|boolean
 |`false`
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-protocol]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-protocol[onecx.iam.kc.client.config."config".protocol]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-protocol]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-protocol[`onecx.iam.kc.client.config."config".protocol`]##
 
 [.description]
 --
 Protocol used with the client.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__PROTOCOL+++[]
@@ -227,16 +225,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__PROTOCOL+++`
 endif::add-copy-button-to-env-var[]
---|string 
+--
+|string
 |`openid-connect`
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-attributes-attributes]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-attributes-attributes[onecx.iam.kc.client.config."config".attributes."attributes"]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-attributes-attributes]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-attributes-attributes[`onecx.iam.kc.client.config."config".attributes."attributes"`]##
 
 [.description]
 --
 Attributes map for the client.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__ATTRIBUTES__ATTRIBUTES_+++[]
@@ -244,17 +242,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__ATTRIBUTES__ATTRIBUTES_+++`
 endif::add-copy-button-to-env-var[]
---|link:https://docs.oracle.com/javase/8/docs/api/java/lang/String.html[String]
- 
+--
+|Map<String,String>
 |
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-default-scopes]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-default-scopes[onecx.iam.kc.client.config."config".default-scopes]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-default-scopes]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-default-scopes[`onecx.iam.kc.client.config."config".default-scopes`]##
 
 [.description]
 --
 Default client scopes.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__DEFAULT_SCOPES+++[]
@@ -262,16 +259,16 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__DEFAULT_SCOPES+++`
 endif::add-copy-button-to-env-var[]
---|list of string 
+--
+|list of string
 |
 
-
-a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-optional-scopes]]`link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-optional-scopes[onecx.iam.kc.client.config."config".optional-scopes]`
-
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-optional-scopes]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-config-config-optional-scopes[`onecx.iam.kc.client.config."config".optional-scopes`]##
 
 [.description]
 --
 Optional client scopes.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__OPTIONAL_SCOPES+++[]
@@ -279,7 +276,28 @@ endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
 Environment variable: `+++ONECX_IAM_KC_CLIENT_CONFIG__CONFIG__OPTIONAL_SCOPES+++`
 endif::add-copy-button-to-env-var[]
---|list of string 
+--
+|list of string
 |
 
+a| [[onecx-iam-kc-client-operator_onecx-iam-kc-client-leader-election-lease-name]] [.property-path]##link:#onecx-iam-kc-client-operator_onecx-iam-kc-client-leader-election-lease-name[`onecx.iam.kc.client.leader-election.lease-name`]##
+
+[.description]
+--
+Lease name
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++ONECX_IAM_KC_CLIENT_LEADER_ELECTION_LEASE_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++ONECX_IAM_KC_CLIENT_LEADER_ELECTION_LEASE_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`onecx-product-store-slot-operator-lease`
+
 |===
+
+
+:!summaryTableId:

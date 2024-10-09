@@ -25,3 +25,12 @@ rules:
       - get
       - list
       - watch
+  - verbs:
+      - "get"
+      - "update"
+      - "create"
+      - "patch"
+    apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - "leases"
