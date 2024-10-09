@@ -27,4 +27,22 @@ public interface KCClientConfig {
     @WithName("config")
     Map<String, KCDefaultConfig> config();
 
+    /**
+     * Leader election configuration
+     */
+    @WithName("leader-election")
+    LeaderElectionConfig leaderElectionConfig();
+
+    /**
+     * Leader election config
+     */
+    interface LeaderElectionConfig {
+
+        /**
+         * Lease name
+         */
+        @WithName("lease-name")
+        @WithDefault("onecx-product-store-slot-operator-lease")
+        String leaseName();
+    }
 }
