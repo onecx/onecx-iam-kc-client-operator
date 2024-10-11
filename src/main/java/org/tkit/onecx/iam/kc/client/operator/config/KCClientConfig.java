@@ -42,7 +42,7 @@ public interface KCClientConfig {
          * Lease name
          */
         @WithName("lease-name")
-        @WithDefault("onecx-product-store-slot-operator-lease")
+        @WithDefault("onecx-iam-kc-client-operator-lease")
         String leaseName();
     }
 }
