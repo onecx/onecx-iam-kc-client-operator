@@ -295,7 +295,7 @@ Environment variable: `+++ONECX_IAM_KC_CLIENT_LEADER_ELECTION_LEASE_NAME+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`onecx-product-store-slot-operator-lease`
+|`onecx-iam-kc-client-operator-lease`
 
 |===
 
