@@ -9,3 +9,8 @@ app:
           fieldPath: metadata.namespace
   serviceAccount:
     enabled: true
+  operator:
+    microservice:
+      spec:
+        description: OneCX IAM Keycloak Client Operator
+        name: OneCX IAM KC Client Operator
