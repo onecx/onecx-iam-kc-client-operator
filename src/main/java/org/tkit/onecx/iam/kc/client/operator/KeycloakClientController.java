@@ -1,9 +1,6 @@
 package org.tkit.onecx.iam.kc.client.operator;
 
-import java.util.Base64;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import jakarta.inject.Inject;
@@ -15,7 +12,8 @@ import org.tkit.onecx.iam.kc.client.operator.service.KeycloakAdminService;
 import org.tkit.onecx.iam.kc.client.operator.service.TypeNotSupportedException;
 
 import io.fabric8.kubernetes.api.model.Secret;
-import io.javaoperatorsdk.operator.api.config.informer.InformerConfiguration;
+import io.javaoperatorsdk.operator.api.config.informer.Informer;
+import io.javaoperatorsdk.operator.api.config.informer.InformerEventSourceConfiguration;
 import io.javaoperatorsdk.operator.api.reconciler.*;
 import io.javaoperatorsdk.operator.processing.event.ResourceID;
 import io.javaoperatorsdk.operator.processing.event.source.EventSource;
@@ -24,10 +22,9 @@ import io.javaoperatorsdk.operator.processing.event.source.filter.OnAddFilter;
 import io.javaoperatorsdk.operator.processing.event.source.filter.OnUpdateFilter;
 import io.javaoperatorsdk.operator.processing.event.source.informer.InformerEventSource;
 
-@ControllerConfiguration(name = "kc", namespaces = Constants.WATCH_CURRENT_NAMESPACE, onAddFilter = KeycloakClientController.AddFilter.class, onUpdateFilter = KeycloakClientController.UpdateFilter.class)
+@ControllerConfiguration(name = "kc", informer = @Informer(name = "parameter", namespaces = Constants.WATCH_CURRENT_NAMESPACE, onAddFilter = KeycloakClientController.AddFilter.class, onUpdateFilter = KeycloakClientController.UpdateFilter.class))
 public class KeycloakClientController
-        implements Reconciler<KeycloakClient>, ErrorStatusHandler<KeycloakClient>, Cleaner<KeycloakClient>,
-        EventSourceInitializer<KeycloakClient> {
+        implements Reconciler<KeycloakClient>, Cleaner<KeycloakClient> {
 
     private static final Logger log = LoggerFactory.getLogger(KeycloakClientController.class);
 
@@ -67,7 +64,7 @@ public class KeycloakClientController
         status.setStatus(KeycloakClientStatus.Status.ERROR);
         status.setMessage(message);
         keycloakClient.setStatus(status);
-        return ErrorStatusUpdateControl.updateStatus(keycloakClient);
+        return ErrorStatusUpdateControl.patchStatus(keycloakClient);
     }
 
     @Override
@@ -91,7 +88,7 @@ public class KeycloakClientController
 
         updateStatusPojo(keycloakClient, response);
         log.info("Resource '{}' reconciled - updating status", keycloakClient.getMetadata().getName());
-        return UpdateControl.updateStatus(keycloakClient);
+        return UpdateControl.patchStatus(keycloakClient);
     }
 
     private void updateStatusPojo(KeycloakClient keycloakClient, KeycloakAdminService.CreateClientResponse response) {
@@ -119,7 +116,7 @@ public class KeycloakClientController
     }
 
     @Override
-    public Map<String, EventSource> prepareEventSources(EventSourceContext<KeycloakClient> context) {
+    public List<EventSource<?, KeycloakClient>> prepareEventSources(EventSourceContext<KeycloakClient> context) {
         final SecondaryToPrimaryMapper<Secret> webappsMatchingTomcatName = (Secret t) -> context.getPrimaryCache()
                 .list(keycloakClient -> {
                     if (keycloakClient.getSpec() != null) {
@@ -130,14 +127,14 @@ public class KeycloakClientController
                 .map(ResourceID::fromResource)
                 .collect(Collectors.toSet());
 
-        InformerConfiguration<Secret> configuration = InformerConfiguration.from(Secret.class, context)
+        InformerEventSourceConfiguration<Secret> configuration = InformerEventSourceConfiguration
+                .from(Secret.class, KeycloakClient.class)
                 .withSecondaryToPrimaryMapper(webappsMatchingTomcatName)
                 .withPrimaryToSecondaryMapper(
                         (KeycloakClient primary) -> Set.of(new ResourceID(primary.getSpec().getPasswordSecrets(),
                                 primary.getMetadata().getNamespace())))
                 .build();
-        return EventSourceInitializer
-                .nameEventSources(new InformerEventSource<>(configuration, context));
+        return List.of(new InformerEventSource<>(configuration, context));
     }
 
     public static class AddFilter implements OnAddFilter<KeycloakClient> {

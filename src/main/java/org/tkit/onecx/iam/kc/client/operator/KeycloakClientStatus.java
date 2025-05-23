@@ -2,9 +2,7 @@ package org.tkit.onecx.iam.kc.client.operator;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.javaoperatorsdk.operator.api.ObservedGenerationAwareStatus;
-
-public class KeycloakClientStatus extends ObservedGenerationAwareStatus {
+public class KeycloakClientStatus {
 
     @JsonProperty("clientId")
     private String clientId;
