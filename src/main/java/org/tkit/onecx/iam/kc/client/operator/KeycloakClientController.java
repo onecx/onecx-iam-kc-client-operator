@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tkit.onecx.iam.kc.client.operator.service.KeycloakAdminService;
 import org.tkit.onecx.iam.kc.client.operator.service.TypeNotSupportedException;
+import org.tkit.onecx.quarkus.operator.OperatorUtils;
 
 import io.fabric8.kubernetes.api.model.Secret;
 import io.javaoperatorsdk.operator.api.config.informer.Informer;
@@ -141,7 +142,7 @@ public class KeycloakClientController
 
         @Override
         public boolean accept(KeycloakClient resource) {
-            return resource.getSpec() != null;
+            return OperatorUtils.shouldProcessAdd(resource);
         }
     }
 
