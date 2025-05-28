@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class KeycloakClientStatus {
 
+    @JsonProperty("observedGeneration")
+    private Long observedGeneration;
+
     @JsonProperty("clientId")
     private String clientId;
 
@@ -57,5 +60,9 @@ public class KeycloakClientStatus {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public Long getObservedGeneration() {
+        return observedGeneration;
     }
 }
