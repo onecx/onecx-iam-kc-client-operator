@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.*;
 import org.keycloak.admin.client.resource.*;
@@ -105,6 +106,11 @@ class KeycloakClientControllerMockTest extends AbstractTest {
         @Override
         public String getInstallationProvider(String s) {
             return null;
+        }
+
+        @Override
+        public Response getInstallationProviderAsResponse(String s) {
+            return Response.ok().build();
         }
 
         @Override
