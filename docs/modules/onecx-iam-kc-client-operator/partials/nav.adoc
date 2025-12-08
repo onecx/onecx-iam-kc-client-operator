@@ -1,0 +1,1 @@
+** xref:documentation:onecx-iam-kc-client-operator:index.adoc[IAM Keycloak client operator]
