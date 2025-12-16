@@ -149,6 +149,11 @@ class KeycloakClientControllerMockTest extends AbstractTest {
         }
 
         @Override
+        public ClientScopeEvaluateResource clientScopesEvaluate() {
+            return null;
+        }
+
+        @Override
         public List<ClientScopeRepresentation> getDefaultClientScopes() {
             return null;
         }
