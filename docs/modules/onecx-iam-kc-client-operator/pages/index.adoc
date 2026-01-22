@@ -1,10 +1,9 @@
 include::onecx-iam-kc-client-operator-attributes.adoc[opts=optional]
 
-== onecx-iam-kc-client-operator
+= OneCX IAM Keycloak Client Operator
 
-include::docs.adoc[opts=optional]
 
-=== Configuration
+== Configuration
 include::onecx-iam-kc-client-operator.adoc[opts=optional]
 
 include::onecx-iam-kc-client-operator-docs.adoc[opts=optional]

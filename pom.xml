@@ -11,6 +11,7 @@
     </parent>
 
     <artifactId>onecx-iam-kc-client-operator</artifactId>
+    <name>OneCX IAM Keycloak Client Operator</name>
     <version>999-SNAPSHOT</version>
 
     <dependencies>
