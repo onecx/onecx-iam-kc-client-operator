@@ -1,2 +1,2 @@
 # onecx-iam-kc-client-operator
-OneCx iam keycloak client operator
+OneCX IAM Keycloak Client Operator
