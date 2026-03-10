@@ -727,11 +727,7 @@ class KeycloakClientControllerTest extends AbstractTest {
 
         await().pollDelay(4, SECONDS).untilAsserted(() -> {
             var tmp = client.resource(data).get();
-            System.out.println("#### " + tmp.getStatus().getMessage());
-            System.out.println("#### " + tmp.getSpec().getPasswordKey());
-            System.out.println("#### " + tmp.getSpec().getPasswordSecrets());
             KeycloakClientStatus mfeStatus = tmp.getStatus();
-            System.out.println("#### " + mfeStatus.getResponseCode());
             assertThat(mfeStatus).isNotNull();
             assertThat(mfeStatus.getResponseCode()).isEqualTo(500);
             assertThat(mfeStatus.getMessage()).isEqualTo("Secret key is mandatory. No key found!");
