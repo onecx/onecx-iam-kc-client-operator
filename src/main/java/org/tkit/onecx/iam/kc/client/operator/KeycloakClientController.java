@@ -37,16 +37,32 @@ public class KeycloakClientController
             Context<KeycloakClient> context, Exception e) {
         int responseCode = -1;
         String message = e.getMessage();
-        if (e.getCause() instanceof WebApplicationException re) {
+        if (e.getCause() != null) {
+            if (e.getCause() instanceof WebApplicationException re) {
+                responseCode = re.getResponse().getStatus();
+                message = re.getResponse().readEntity(String.class);
+            }
+            if (e.getCause() instanceof TypeNotSupportedException tnse) {
+                // set the response code as 500 INTERNAL Server error
+                responseCode = 500;
+                message = tnse.getMessage();
+            }
+            if (e.getCause() instanceof MissingMandatoryKeyException mmke) {
+                // set the response code as 500 INTERNAL Server error
+                responseCode = 500;
+                message = mmke.getMessage();
+            }
+        }
+        if (e instanceof WebApplicationException re) {
             responseCode = re.getResponse().getStatus();
             message = re.getResponse().readEntity(String.class);
         }
-        if (e.getCause() instanceof TypeNotSupportedException tnse) {
+        if (e instanceof TypeNotSupportedException tnse) {
             // set the response code as 500 INTERNAL Server error
             responseCode = 500;
             message = tnse.getMessage();
         }
-        if (e.getCause() instanceof MissingMandatoryKeyException mmke) {
+        if (e instanceof MissingMandatoryKeyException mmke) {
             // set the response code as 500 INTERNAL Server error
             responseCode = 500;
             message = mmke.getMessage();
