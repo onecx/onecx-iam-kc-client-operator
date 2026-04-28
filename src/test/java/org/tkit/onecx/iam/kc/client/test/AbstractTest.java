@@ -26,7 +26,7 @@ public abstract class AbstractTest {
             var jwtClaims = JwtClaims.parse(jws.getUnverifiedPayload());
 
             return new DefaultJWTCallerPrincipal(token, jws.getKeyType(), jwtClaims);
-        } catch (Exception e) {
+        } catch (Exception _) {
             log.error("Error parse token {}", token);
         }
         return null;

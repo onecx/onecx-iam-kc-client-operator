@@ -24,6 +24,7 @@ class KeycloakClientControllerMockTest extends AbstractTest {
     KeycloakAdminService kas;
 
     @Test
+    @SuppressWarnings("java:S3011")
     void testThrowException() throws NoSuchMethodException {
 
         MockClientResource mockClientResource = new MockClientResource();
@@ -160,12 +161,12 @@ class KeycloakClientControllerMockTest extends AbstractTest {
 
         @Override
         public void addDefaultClientScope(String s) {
-            throw new RuntimeException("error");
+            throw new MockTestRuntimeException();
         }
 
         @Override
         public void removeDefaultClientScope(String s) {
-            throw new RuntimeException("error");
+            throw new MockTestRuntimeException();
         }
 
         @Override
@@ -175,12 +176,12 @@ class KeycloakClientControllerMockTest extends AbstractTest {
 
         @Override
         public void addOptionalClientScope(String s) {
-            throw new RuntimeException("error");
+            throw new MockTestRuntimeException();
         }
 
         @Override
         public void removeOptionalClientScope(String s) {
-            throw new RuntimeException("error");
+            throw new MockTestRuntimeException();
         }
 
         @Override
@@ -219,4 +220,10 @@ class KeycloakClientControllerMockTest extends AbstractTest {
         }
     }
 
+    public static class MockTestRuntimeException extends RuntimeException {
+
+        public MockTestRuntimeException() {
+            super("error");
+        }
+    }
 }
