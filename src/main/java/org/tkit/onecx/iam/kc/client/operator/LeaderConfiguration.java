@@ -9,6 +9,7 @@ import io.javaoperatorsdk.operator.api.config.LeaderElectionConfiguration;
 @Singleton
 public class LeaderConfiguration extends LeaderElectionConfiguration {
 
+    @SuppressWarnings("java:S5738")
     public LeaderConfiguration(KCClientConfig config) {
         super(config.leaderElectionConfig().leaseName());
     }

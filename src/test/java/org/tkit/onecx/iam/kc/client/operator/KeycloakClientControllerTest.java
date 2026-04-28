@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 
 import org.apache.groovy.util.Maps;
 import org.awaitility.Awaitility;
@@ -48,7 +47,7 @@ class KeycloakClientControllerTest extends AbstractTest {
     Keycloak keycloak;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         Awaitility.setDefaultPollDelay(2, SECONDS);
         Awaitility.setDefaultPollInterval(2, SECONDS);
         Awaitility.setDefaultTimeout(10, SECONDS);
@@ -406,7 +405,7 @@ class KeycloakClientControllerTest extends AbstractTest {
         mapperConfig.put("jsonType.label", "String");
         pmr.setConfig(mapperConfig);
         orgIdScope.setProtocolMappers(List.of(pmr));
-        try (Response res = keycloak.realm(REALM_QUARKUS).clientScopes().create(orgIdScope)) {
+        try (var _ = keycloak.realm(REALM_QUARKUS).clientScopes().create(orgIdScope)) {
             keycloak.realm(REALM_QUARKUS).addDefaultDefaultClientScope(orgIdScope.getId());
         }
     }
